@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Workshop · Intro Copy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script>(function(){try{var d=document.documentElement.dataset,g=function(k){return localStorage.getItem(k)},M={compact:['sm','compact'],normal:['md','normal'],airy:['lg','airy']};var t=g('nick.theme');if(t)d.theme=t;var s=g('nick.size')||'airy';if(M[s]){d.size=s;d.text=M[s][0];d.density=M[s][1];}}catch(e){}})();</script>
+<link rel="stylesheet" href="../_lib/shell.css">
+<style>
+  .workshop-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    margin-top: 40px;
+  }
+  .variant {
+    background: var(--bg);
+    padding: 36px 40px;
+    display: grid;
+    grid-template-columns: 48px 1fr;
+    gap: 0 32px;
+    cursor: pointer;
+    transition: background 120ms ease;
+    position: relative;
+  }
+  .variant:hover { background: var(--panel); }
+  .variant.pinned { background: color-mix(in srgb, var(--accent) 6%, var(--bg)); }
+  .variant.pinned::before {
+    content: "★";
+    position: absolute;
+    top: 36px; right: 40px;
+    color: var(--accent);
+    font-size: 12px;
+  }
+  .v-num {
+    color: var(--rule);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    padding-top: 6px;
+    user-select: none;
+  }
+  .variant.pinned .v-num { color: var(--accent); }
+  .v-body {}
+  .v-h2 {
+    font-size: 22px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    margin: 0 0 16px;
+    line-height: 1.3;
+  }
+  .v-h2 em { font-style: normal; color: var(--accent); }
+  .v-p {
+    color: var(--ink-2);
+    font-size: 14px;
+    line-height: 1.8;
+    margin: 0 0 10px;
+    max-width: 60ch;
+  }
+  .v-p:last-child { margin-bottom: 0; }
+  .v-tag {
+    display: inline-block;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border: 1px solid var(--rule);
+    padding: 2px 8px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  .pin-hint {
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 32px;
+    padding-top: 20px;
+    border-top: 1px solid var(--rule);
+  }
+  .gen-label {
+    color: var(--muted);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin: 56px 0 0;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .gen-label:first-of-type { margin-top: 0; }
+</style>
+</head>
+<body class="page-work">
+<div class="shell">
+
+  <aside class="rail">
+    <div class="brand"><a href="../"><span class="dot"></span> nick mcvey</a></div>
+    <div class="brand-sub">designer · prototyper</div>
+    <nav class="primary">
+      <a href="../">intro</a>
+      <a href="../essays/">essays &amp; talks</a>
+      <a href="../art/">art</a>
+      <a href="../about/">about</a>
+    </nav>
+    <div class="rail-foot">
+      <div class="display-menu" id="displayMenu">
+        <button class="display-trigger" type="button" aria-haspopup="true" aria-expanded="false">
+          <span class="dot"></span> display
+          <span class="chev" aria-hidden="true">^</span>
+        </button>
+        <div class="display-flyout" role="dialog" aria-label="Display settings">
+          <div class="dm-section">
+            <div class="dm-label">color</div>
+            <div class="dm-row colors">
+              <button class="theme-opt" type="button" data-theme="amber-dark"     style="--swatch: #d98a3d" title="amber dark"><span class="swatch"></span></button>
+              <button class="theme-opt" type="button" data-theme="cool-dark"      style="--swatch: #6db4ff" title="cool dark"><span class="swatch"></span></button>
+              <button class="theme-opt" type="button" data-theme="paper-light"    style="--swatch: #b86621" title="paper light"><span class="swatch"></span></button>
+              <button class="theme-opt" type="button" data-theme="terminal-green" style="--swatch: #4cff8a" title="terminal green"><span class="swatch"></span></button>
+            </div>
+          </div>
+          <div class="dm-section">
+            <div class="dm-label">size</div>
+            <div class="seg size">
+              <button type="button" data-value="compact" aria-label="compact">A</button>
+              <button type="button" data-value="normal"  aria-label="normal">A</button>
+              <button type="button" data-value="airy"    aria-label="airy">A</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+    <header class="page-head">
+      <h1>intro copy workshop</h1>
+    </header>
+    <p class="page-lede">3 versions. Click any to pin your favourite.</p>
+
+    <div class="workshop-grid">
+
+      <!-- N -->
+      <div class="variant" data-v="05-N">
+        <div class="v-num">N</div>
+        <div class="v-body">
+          <div class="v-tag">show don't tell</div>
+          <h2 class="v-h2"><em>Maker.</em> Designer. Builder.</h2>
+          <p class="v-p">I'm an experience designer with fifteen years of wide-ranging work: interfaces for story-driven games, dashboards for government agencies, tools for game developers, and now gaming experiences for players all over the world. Curiosity got me here and it hasn't quit.</p>
+          <p class="v-p">The artist I was born as became a designer. That's still how I think about the work. Every problem is a new medium to understand. AI is the latest, and it's the most dynamic I've come across.</p>
+        </div>
+      </div>
+
+      <!-- O -->
+      <div class="variant" data-v="05-O">
+        <div class="v-num">O</div>
+        <div class="v-body">
+          <div class="v-tag">direct · appetite</div>
+          <h2 class="v-h2"><em>Maker.</em> Designer. Builder.</h2>
+          <p class="v-p">I love learning. Always have. Fifteen years across genuinely different problems: interfaces for story-driven games, dashboards for government agencies, tools for doctors and nonprofits, business software, and now gaming experiences for players everywhere.</p>
+          <p class="v-p">I started as an artist before I was ever a designer. I still make things. I think a lot about what good design actually means and what craft is for.</p>
+        </div>
+      </div>
+
+      <!-- P -->
+      <div class="variant" data-v="05-P">
+        <div class="v-num">P</div>
+        <div class="v-body">
+          <div class="v-tag">visceral · clean</div>
+          <h2 class="v-h2"><em>Maker.</em> Designer. Builder.</h2>
+          <p class="v-p">I love learning. Over fifteen years I've built interfaces for games, dashboards for government agencies, tools for nonprofits and doctors, business software for the digital age. Now I make gaming experiences for players all over the world.</p>
+          <p class="v-p">Art came first. I grew up making things and I still do. What it means to make something well is a question I carry everywhere.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <p class="pin-hint" style="margin-top: 24px;">Pinned variants are saved to localStorage — reload and they'll still be starred.</p>
+
+  </main>
+
+</div>
+
+<script src="../_lib/theme.js"></script>
+<script>
+  const STORE_KEY = 'nick.workshop.pinned';
+  const pinned = new Set(JSON.parse(localStorage.getItem(STORE_KEY) || '[]'));
+
+  function save() {
+    localStorage.setItem(STORE_KEY, JSON.stringify([...pinned]));
+  }
+
+  document.querySelectorAll('.variant').forEach(el => {
+    const id = el.dataset.v;
+    if (pinned.has(id)) el.classList.add('pinned');
+    el.addEventListener('click', () => {
+      if (pinned.has(id)) {
+        pinned.delete(id);
+        el.classList.remove('pinned');
+      } else {
+        pinned.add(id);
+        el.classList.add('pinned');
+      }
+      save();
+    });
+  });
+</script>
+</body>
+</html>
