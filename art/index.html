@@ -1,0 +1,714 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nick McVey · Art</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script>(function(){try{var d=document.documentElement.dataset,g=function(k){return localStorage.getItem(k)},M={compact:['sm','compact'],normal:['md','normal'],airy:['lg','airy']};var t=g('nick.theme');if(t)d.theme=t;var s=g('nick.size')||'airy';if(M[s]){d.size=s;d.text=M[s][0];d.density=M[s][1];}}catch(e){}})();</script>
+<link rel="stylesheet" href="../_lib/shell.css">
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body class="page-art">
+<div class="shell">
+
+  <aside class="rail">
+    <div class="brand"><a href="../"><span class="dot"></span> nick mcvey</a></div>
+    <div class="brand-sub">designer · prototyper</div>
+    <nav class="primary">
+      <a href="../"><span class="idx">00</span> intro</a>
+      <a href="../essays/"><span class="idx">01</span> essays &amp; talks</a>
+      <a href="../art/" class="active"><span class="idx">02</span> art</a>
+      <a href="../about/"><span class="idx">03</span> about</a>
+    </nav>
+    <div class="rail-foot">
+      <div class="display-menu" id="displayMenu">
+        <button class="display-trigger" type="button" aria-haspopup="true" aria-expanded="false">
+          <span class="dot"></span> display
+          <span class="chev" aria-hidden="true">^</span>
+        </button>
+        <div class="display-flyout" role="dialog" aria-label="Display settings">
+          <div class="dm-section">
+            <div class="dm-label">color</div>
+            <div class="dm-row colors">
+              <button class="theme-opt" type="button" data-theme="amber-dark"     style="--swatch: #d98a3d" title="amber dark"><span class="swatch"></span></button>
+              <button class="theme-opt" type="button" data-theme="cool-dark"      style="--swatch: #6db4ff" title="cool dark"><span class="swatch"></span></button>
+              <button class="theme-opt" type="button" data-theme="paper-light"    style="--swatch: #b86621" title="paper light"><span class="swatch"></span></button>
+              <button class="theme-opt" type="button" data-theme="terminal-green" style="--swatch: #4cff8a" title="terminal green"><span class="swatch"></span></button>
+            </div>
+          </div>
+          <div class="dm-section">
+            <div class="dm-label">size</div>
+            <div class="seg size">
+              <button type="button" data-value="compact" aria-label="compact">A</button>
+              <button type="button" data-value="normal"  aria-label="normal">A</button>
+              <button type="button" data-value="airy"    aria-label="airy">A</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+    <header class="page-head">
+      <span class="label" data-reveal>// 02</span>
+      <h1 data-reveal>art</h1>
+    </header>
+
+    <p style="color: var(--muted); max-width: 60ch; margin: -16px 0 56px; font-size: 13px; line-height: 1.75;">
+      <span data-reveal>A few</span>
+      <em data-reveal style="color: var(--ink-2); font-style: normal;">things made on the side</em>
+      <span data-reveal>mostly between meetings and at airports. Scroll for more.</span>
+    </p>
+
+    <div class="gallery" id="gallery"></div>
+
+    <div id="loadSentinel" style="height: 1px; width: 100%;"></div>
+    <div id="loadHint" style="color: var(--muted); font-size: 12px; margin: 32px 0 8px; text-align: center; opacity: 0; transition: opacity 240ms ease;">loading…</div>
+    <div id="loadDone" style="color: var(--muted); font-size: 12px; margin: 48px 0 8px; text-align: center; opacity: 0; transition: opacity 400ms ease;">// end of archive</div>
+  </main>
+
+</div>
+
+<div class="lightbox" id="lightbox" aria-hidden="true">
+  <div class="meta"><span class="num" id="lbNum">01</span> / <span id="lbTotal">--</span> &nbsp; <span id="lbName"></span></div>
+  <div class="stage">
+    <canvas id="lbCanvas"></canvas>
+    <video id="lbVideo" controls playsinline preload="metadata" style="display:none; max-width:100%; max-height:100%;"></video>
+  </div>
+  <button class="close" id="lbClose" aria-label="close">esc</button>
+  <button class="prev" id="lbPrev" aria-label="previous">‹</button>
+  <button class="next" id="lbNext" aria-label="next">›</button>
+  <div class="hint"><kbd>←</kbd><kbd>→</kbd> navigate &nbsp;·&nbsp; <kbd>esc</kbd> close</div>
+</div>
+
+<script src="../_lib/reveal.js"></script>
+<script>
+// ============================================================
+// gallery + lightbox
+// ============================================================
+const IMAGES = ["art_1.jpg","art_3.jpg","art_4.png","art_5.png","art_6.png","art_7.png","art_8.png","art_10.jpg","art_11.jpg","art_16.jpg","art_17.jpg","art_18.jpg","art_19.png","art_20.png","art_21.jpg","art_24.jpg","art_26.jpg","art_29.jpg","art_30.jpg","art_31.png","art_33.jpg","art_34.jpg","art_35.jpg","art_37.gif","art_38.png","art_39.jpg","art_43.jpg","art_46.jpg","art_47.jpg","art_48.jpg","art_51.png","art_53.png","art_54.jpg","art_55.jpg","art_56.jpg","art_57.png","art_59.jpg","art_60.gif"];
+const VIDEOS = ["box-killer.mp4","clip-0172.mp4","dream-4.mp4","samurai.mp4","untitled-artwork.mp4"];
+const ASSET_PATH = "../assets/";
+const VIDEO_PATH = "../assets/video/";
+
+const ITEMS = [
+  ...IMAGES.map(name => ({ name, kind: 'image', src: ASSET_PATH + name })),
+  ...VIDEOS.map(name => ({ name, kind: 'video', src: VIDEO_PATH + name })),
+  { name: 'voxel room', kind: '3d', src: '../assets/3d/' }
+];
+
+document.getElementById('lbTotal').textContent = String(ITEMS.length).padStart(2, '0');
+
+const ORDER = (() => {
+  const a = ITEMS.map((_, i) => i);
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+})();
+
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const RASTER_TILE = { start: 6, steps: 6, stepMs: 80 };
+const RASTER_LB   = { start: 8, steps: 8, stepMs: 100 };
+
+function rasterizeCanvas(canvas, img, opts) {
+  return new Promise(async (resolve) => {
+    if (!img.complete || img.naturalWidth === 0) {
+      try { await img.decode(); } catch {}
+    }
+    const dpr = window.devicePixelRatio || 1;
+    const cssW = canvas.clientWidth || canvas.parentElement.clientWidth || img.naturalWidth;
+    const aspect = img.naturalHeight / img.naturalWidth;
+    const cssH = cssW * aspect;
+    canvas.width  = Math.max(1, Math.round(cssW * dpr));
+    canvas.height = Math.max(1, Math.round(cssH * dpr));
+    const ctx = canvas.getContext('2d');
+
+    if (reduceMotion) {
+      ctx.imageSmoothingEnabled = true;
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      return resolve();
+    }
+
+    const target = img.naturalWidth;
+    const ladder = [];
+    let r = Math.max(2, opts.start);
+    const ratio = Math.pow(target / opts.start, 1 / Math.max(1, opts.steps - 1));
+    while (r < target && ladder.length < opts.steps - 1) {
+      ladder.push(Math.round(r));
+      r = r * ratio;
+    }
+    ladder.push(target);
+
+    const tiny = document.createElement('canvas');
+    const tctx = tiny.getContext('2d');
+
+    for (let s = 0; s < ladder.length; s++) {
+      const w = ladder[s];
+      const h = Math.max(1, Math.round(w * aspect));
+      tiny.width = w; tiny.height = h;
+      tctx.imageSmoothingEnabled = true;
+      tctx.imageSmoothingQuality = 'high';
+      tctx.drawImage(img, 0, 0, w, h);
+
+      const isFinal = s === ladder.length - 1;
+      ctx.imageSmoothingEnabled = isFinal ? true : false;
+      ctx.imageSmoothingQuality = isFinal ? 'high' : 'low';
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(tiny, 0, 0, canvas.width, canvas.height);
+      if (!isFinal) await new Promise(res => setTimeout(res, opts.stepMs));
+    }
+    resolve();
+  });
+}
+
+const grid = document.getElementById('gallery');
+const tiles = [];
+let nextLoadIdx = 0;
+const BATCH_FIRST = 9;
+const BATCH_MORE  = 6;
+
+let columns = [];
+function colCount() {
+  const w = window.innerWidth;
+  if (w <= 600)  return 1;
+  if (w <= 1000) return 2;
+  return 3;
+}
+function buildColumns() {
+  const n = colCount();
+  if (columns.length === n) return false;
+  grid.innerHTML = '';
+  columns = [];
+  for (let i = 0; i < n; i++) {
+    const c = document.createElement('div');
+    c.className = 'col';
+    grid.appendChild(c);
+    columns.push(c);
+  }
+  tiles.forEach((t, i) => {
+    columns[i % n].appendChild(t.fig);
+  });
+  return true;
+}
+function shortestColIdx() {
+  let best = 0;
+  let bestH = columns[0].offsetHeight;
+  for (let i = 1; i < columns.length; i++) {
+    const h = columns[i].offsetHeight;
+    if (h < bestH) { best = i; bestH = h; }
+  }
+  return best;
+}
+
+let _batchStartCol = 0;
+let _batchPlaced = 0;
+function nextCol() {
+  const i = (_batchStartCol + _batchPlaced) % columns.length;
+  _batchPlaced++;
+  return columns[i];
+}
+
+function addTile(orderIdx) {
+  const itemIdx = ORDER[orderIdx];
+  const item = ITEMS[itemIdx];
+  const fig = document.createElement('figure');
+  fig.className = 'tile tile-' + item.kind;
+  fig.dataset.idx = itemIdx;
+
+  if (item.kind === 'image') {
+    const img = document.createElement('img');
+    img.loading = 'lazy';
+    img.decoding = 'async';
+    img.alt = item.name;
+    img.src = item.src;
+    const canvas = document.createElement('canvas');
+    fig.appendChild(img);
+    fig.appendChild(canvas);
+    fig.addEventListener('click', () => openLightbox(itemIdx));
+    nextCol().appendChild(fig);
+    const t = { fig, kind: 'image', img, canvas, name: item.name, animated: false };
+    tiles.push(t);
+    tileIO.observe(fig);
+  } else if (item.kind === '3d') {
+    fig.className = 'tile tile-3d';
+    fig.style.position = 'relative';
+    fig.style.aspectRatio = '4 / 3';
+    fig.style.background = '#0e0d0b';
+    fig.style.overflow = 'hidden';
+    fig.style.cursor = 'pointer';
+    const roomCanvas = document.createElement('canvas');
+    roomCanvas.id = 'roomCanvas';
+    roomCanvas.style.cssText = 'display:block;width:100%;height:100%;';
+    const overlay = document.createElement('div');
+    overlay.id = 'roomOverlay';
+    overlay.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(14,13,11,0.55);backdrop-filter:blur(2px);transition:opacity 300ms;z-index:2;';
+    overlay.innerHTML = '<div style="text-align:center;font-family:Geist Mono,monospace;">'
+      + '<div style="font-size:15px;font-weight:600;color:#e6e1d3;margin-bottom:4px;">voxel room</div>'
+      + '<div style="font-size:11px;color:#6a655a;">click to explore · wasd + mouse</div></div>';
+    const hud = document.createElement('div');
+    hud.id = 'roomHud';
+    hud.style.cssText = 'display:none;position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font-family:Geist Mono,monospace;font-size:10px;color:rgba(230,225,211,0.5);letter-spacing:0.04em;z-index:3;pointer-events:none;white-space:nowrap;';
+    hud.innerHTML = '<span style="color:rgba(230,225,211,0.8);font-weight:600;">wasd</span> move · <span style="color:rgba(230,225,211,0.8);font-weight:600;">mouse</span> look · <span style="color:rgba(230,225,211,0.8);font-weight:600;">esc</span> exit';
+    fig.appendChild(roomCanvas);
+    fig.appendChild(overlay);
+    fig.appendChild(hud);
+    nextCol().appendChild(fig);
+    const t = { fig, kind: '3d', name: item.name, animated: false };
+    tiles.push(t);
+    tileIO.observe(fig);
+    window._roomTileReady = { container: fig, canvas: roomCanvas, overlay, hud };
+  } else {
+    const vid = document.createElement('video');
+    vid.muted = true;
+    vid.loop = true;
+    vid.playsInline = true;
+    vid.autoplay = true;
+    vid.preload = 'metadata';
+    vid.src = item.src + '#t=0.1';
+    vid.style.width = '100%';
+    vid.style.height = 'auto';
+    vid.style.display = 'block';
+    const badge = document.createElement('span');
+    badge.className = 'tile-badge';
+    badge.textContent = '▶';
+    fig.appendChild(vid);
+    fig.appendChild(badge);
+    fig.addEventListener('click', () => openLightbox(itemIdx));
+    nextCol().appendChild(fig);
+    const t = { fig, kind: 'video', vid, name: item.name, animated: false };
+    tiles.push(t);
+    tileIO.observe(fig);
+    videoIO.observe(fig);
+  }
+}
+
+function loadBatch(n) {
+  _batchStartCol = shortestColIdx();
+  _batchPlaced = 0;
+  const end = Math.min(nextLoadIdx + n, ITEMS.length);
+  for (let i = nextLoadIdx; i < end; i++) addTile(i);
+  nextLoadIdx = end;
+  if (nextLoadIdx >= ITEMS.length) {
+    sentinelIO.disconnect();
+    document.getElementById('loadHint').style.opacity = '0';
+    document.getElementById('loadDone').style.opacity = '0.6';
+  }
+}
+
+async function animateTile(t) {
+  if (t.animated) return;
+  t.animated = true;
+  if (t.kind === 'video') {
+    t.fig.classList.add('ready', 'done');
+    return;
+  }
+  if (!t.img.complete || t.img.naturalWidth === 0) {
+    await new Promise((res) => {
+      t.img.addEventListener('load', res, { once: true });
+      t.img.addEventListener('error', res, { once: true });
+    });
+  }
+  if (t.img.naturalWidth === 0) {
+    t.fig.classList.add('ready', 'done');
+    return;
+  }
+  t.fig.classList.add('ready');
+  await rasterizeCanvas(t.canvas, t.img, RASTER_TILE);
+  t.fig.classList.add('done');
+}
+
+const tileIO = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const t = tiles.find(x => x.fig === e.target);
+      if (t) animateTile(t);
+      tileIO.unobserve(e.target);
+    }
+  });
+}, { rootMargin: '100px 0px 200px 0px', threshold: 0.01 });
+
+const videoIO = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    const t = tiles.find(x => x.fig === e.target);
+    if (!t || t.kind !== 'video') return;
+    if (e.isIntersecting) {
+      t.vid.play().catch(()=>{});
+    } else {
+      t.vid.pause();
+    }
+  });
+}, { rootMargin: '50px 0px 50px 0px', threshold: 0.05 });
+
+const loadHint = document.getElementById('loadHint');
+const sentinel = document.getElementById('loadSentinel');
+const sentinelIO = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting && nextLoadIdx < ITEMS.length) {
+      loadHint.style.opacity = '0.6';
+      setTimeout(() => {
+        loadBatch(BATCH_MORE);
+        if (nextLoadIdx < ITEMS.length) {
+          setTimeout(() => { loadHint.style.opacity = '0'; }, 400);
+          sentinelIO.unobserve(sentinel);
+          sentinelIO.observe(sentinel);
+        }
+      }, 120);
+    }
+  });
+}, { rootMargin: '600px 0px 600px 0px', threshold: 0 });
+
+buildColumns();
+loadBatch(BATCH_FIRST);
+sentinelIO.observe(sentinel);
+
+let _resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(_resizeTimer);
+  _resizeTimer = setTimeout(() => { buildColumns(); }, 150);
+});
+
+// lightbox
+const lb       = document.getElementById('lightbox');
+const lbCanvas = document.getElementById('lbCanvas');
+const lbVideo  = document.getElementById('lbVideo');
+const lbNum    = document.getElementById('lbNum');
+const lbName   = document.getElementById('lbName');
+const lbPrev   = document.getElementById('lbPrev');
+const lbNext   = document.getElementById('lbNext');
+const lbClose  = document.getElementById('lbClose');
+
+let lbIndex = 0;
+let lbToken = 0;
+const _imgCache = new Map();
+function loadImage(src) {
+  if (_imgCache.has(src)) return _imgCache.get(src);
+  const p = new Promise((resolve, reject) => {
+    const im = new Image();
+    im.onload = () => resolve(im);
+    im.onerror = reject;
+    im.src = src;
+  });
+  _imgCache.set(src, p);
+  return p;
+}
+function fitLightboxCanvas(img) {
+  const maxW = window.innerWidth  - (window.innerWidth  > 720 ? 192 : 32);
+  const maxH = window.innerHeight - 128;
+  const aspect = img.naturalHeight / img.naturalWidth;
+  let w = maxW, h = w * aspect;
+  if (h > maxH) { h = maxH; w = h / aspect; }
+  lbCanvas.style.width  = Math.floor(w) + 'px';
+  lbCanvas.style.height = Math.floor(h) + 'px';
+}
+async function showLightbox(i) {
+  lbIndex = (i + ITEMS.length) % ITEMS.length;
+  const myToken = ++lbToken;
+  const item = ITEMS[lbIndex];
+  lbNum.textContent  = String(lbIndex + 1).padStart(2, '0');
+  lbName.textContent = item.name;
+
+  lbVideo.pause();
+  lbVideo.removeAttribute('src');
+  lbVideo.load();
+
+  if (item.kind === 'video') {
+    lbCanvas.style.display = 'none';
+    lbVideo.style.display  = 'block';
+    lbVideo.src = item.src;
+    lbVideo.play().catch(()=>{});
+    return;
+  }
+  lbVideo.style.display  = 'none';
+  lbCanvas.style.display = 'block';
+  const ctx = lbCanvas.getContext('2d');
+  ctx.clearRect(0, 0, lbCanvas.width, lbCanvas.height);
+  let img;
+  try { img = await loadImage(item.src); } catch { return; }
+  if (myToken !== lbToken) return;
+  fitLightboxCanvas(img);
+  await rasterizeCanvas(lbCanvas, img, RASTER_LB);
+}
+function openLightbox(i) {
+  lb.classList.add('open');
+  lb.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+  showLightbox(i);
+}
+function closeLightbox() {
+  lb.classList.remove('open');
+  lb.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+  lbToken++;
+  lbVideo.pause();
+  lbVideo.removeAttribute('src');
+  lbVideo.load();
+}
+lbPrev.addEventListener('click', (e) => { e.stopPropagation(); showLightbox(lbIndex - 1); });
+lbNext.addEventListener('click', (e) => { e.stopPropagation(); showLightbox(lbIndex + 1); });
+lbClose.addEventListener('click', (e) => { e.stopPropagation(); closeLightbox(); });
+lb.addEventListener('click', (e) => {
+  if (e.target === lb || e.target.classList.contains('stage')) closeLightbox();
+});
+document.addEventListener('keydown', (e) => {
+  if (!lb.classList.contains('open')) return;
+  if (e.key === 'Escape') closeLightbox();
+  else if (e.key === 'ArrowLeft')  showLightbox(lbIndex - 1);
+  else if (e.key === 'ArrowRight') showLightbox(lbIndex + 1);
+});
+window.addEventListener('resize', () => {
+  if (!lb.classList.contains('open')) return;
+  const item = ITEMS[lbIndex];
+  if (item.kind !== 'image') return;
+  loadImage(item.src).then(img => {
+    fitLightboxCanvas(img);
+    const dpr = window.devicePixelRatio || 1;
+    lbCanvas.width  = Math.round(parseFloat(lbCanvas.style.width)  * dpr);
+    lbCanvas.height = Math.round(parseFloat(lbCanvas.style.height) * dpr);
+    const ctx = lbCanvas.getContext('2d');
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(img, 0, 0, lbCanvas.width, lbCanvas.height);
+  });
+});
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OBJLoader }  from 'three/addons/loaders/OBJLoader.js';
+import { MTLLoader }  from 'three/addons/loaders/MTLLoader.js';
+import { EffectComposer }    from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass }        from 'three/addons/postprocessing/RenderPass.js';
+import { SSAOPass }          from 'three/addons/postprocessing/SSAOPass.js';
+import { OutputPass }        from 'three/addons/postprocessing/OutputPass.js';
+
+function waitForTile() {
+  return new Promise(resolve => {
+    if (window._roomTileReady) return resolve(window._roomTileReady);
+    const check = setInterval(() => {
+      if (window._roomTileReady) { clearInterval(check); resolve(window._roomTileReady); }
+    }, 50);
+  });
+}
+
+const { container, canvas, overlay, hud } = await waitForTile();
+
+const isMobile = /Android|iPhone|iPad|iPod|webOS/i.test(navigator.userAgent)
+                 || ('ontouchstart' in window && window.innerWidth < 1024);
+
+const scene  = new THREE.Scene();
+scene.background = new THREE.Color(0x0e0d0b);
+const camera = new THREE.PerspectiveCamera(70, container.clientWidth / container.clientHeight, 0.05, 100);
+camera.position.set(0, 1.7, 2);
+
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(container.clientWidth, container.clientHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+const ssaoPass = new SSAOPass(scene, camera, container.clientWidth, container.clientHeight);
+ssaoPass.kernelRadius = 0.8;
+ssaoPass.minDistance = 0.001;
+ssaoPass.maxDistance = 0.1;
+composer.addPass(ssaoPass);
+composer.addPass(new OutputPass());
+
+scene.add(new THREE.AmbientLight(0xfff8ee, 0.4));
+scene.add(new THREE.HemisphereLight(0xfff4e0, 0x202018, 0.5));
+
+const sun = new THREE.DirectionalLight(0xfff0d0, 1.2);
+sun.position.set(3, 8, 2);
+sun.castShadow = true;
+sun.shadow.mapSize.set(1024, 1024);
+sun.shadow.camera.near = 0.5;
+sun.shadow.camera.far = 20;
+sun.shadow.camera.left = -8;
+sun.shadow.camera.right = 8;
+sun.shadow.camera.top = 8;
+sun.shadow.camera.bottom = -8;
+sun.shadow.bias = -0.002;
+scene.add(sun);
+
+const fill = new THREE.DirectionalLight(0xc0d8ff, 0.3);
+fill.position.set(-4, 4, -3);
+scene.add(fill);
+
+const roomLight = new THREE.PointLight(0xffcc88, 0.6, 12);
+roomLight.position.set(0, 4, 1);
+roomLight.castShadow = true;
+roomLight.shadow.mapSize.set(512, 512);
+scene.add(roomLight);
+
+const ASSET_BASE = '../assets/3d/';
+const mtlLoader = new MTLLoader();
+mtlLoader.setPath(ASSET_BASE);
+mtlLoader.load('test-room.mtl', (materials) => {
+  materials.preload();
+  for (const key of Object.keys(materials.materials)) {
+    const mat = materials.materials[key];
+    if (mat.map) {
+      mat.map.magFilter = THREE.NearestFilter;
+      mat.map.minFilter = THREE.NearestFilter;
+      mat.map.generateMipmaps = false;
+      mat.map.colorSpace = THREE.SRGBColorSpace;
+    }
+  }
+  const objLoader = new OBJLoader();
+  objLoader.setMaterials(materials);
+  objLoader.setPath(ASSET_BASE);
+  objLoader.load('test-room.obj', (obj) => {
+    obj.traverse((child) => {
+      if (child.isMesh) {
+        const oldMat = child.material;
+        const newMat = new THREE.MeshStandardMaterial({ roughness: 0.95, metalness: 0.0 });
+        if (oldMat.map) {
+          oldMat.map.magFilter = THREE.NearestFilter;
+          oldMat.map.minFilter = THREE.NearestFilter;
+          oldMat.map.generateMipmaps = false;
+          oldMat.map.colorSpace = THREE.SRGBColorSpace;
+          newMat.map = oldMat.map;
+        } else if (oldMat.color) {
+          newMat.color.copy(oldMat.color);
+        }
+        child.material = newMat;
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    });
+    scene.add(obj);
+    composer.render();
+  });
+});
+
+let locked = false;
+const euler = new THREE.Euler(0, 0, 0, 'YXZ');
+const velocity = new THREE.Vector3();
+const direction = new THREE.Vector3();
+const keys = { w: false, a: false, s: false, d: false };
+const SPEED = 4;
+const EYE_HEIGHT = 1.7;
+const BOUNDS = { minX: -5.5, maxX: 5.5, minZ: -3.5, maxZ: 5.5 };
+
+function onMouseMove(e) {
+  if (!locked) return;
+  euler.setFromQuaternion(camera.quaternion);
+  euler.y -= e.movementX * 0.002;
+  euler.x -= e.movementY * 0.002;
+  euler.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, euler.x));
+  camera.quaternion.setFromEuler(euler);
+}
+function onKeyDown(e) {
+  if (!locked) return;
+  const k = e.key.toLowerCase();
+  if (k in keys) { keys[k] = true; e.preventDefault(); }
+  if (['arrowup','arrowdown','arrowleft','arrowright',' '].includes(e.key)) e.preventDefault();
+}
+function onKeyUp(e) {
+  const k = e.key.toLowerCase();
+  if (k in keys) keys[k] = false;
+}
+
+function enterRoom() {
+  if (isMobile) return;
+  container.requestPointerLock();
+}
+
+document.addEventListener('pointerlockchange', () => {
+  locked = document.pointerLockElement === container;
+  if (locked) {
+    overlay.style.opacity = '0';
+    overlay.style.pointerEvents = 'none';
+    hud.style.display = '';
+  } else {
+    overlay.style.opacity = '1';
+    overlay.style.pointerEvents = '';
+    hud.style.display = 'none';
+    Object.keys(keys).forEach(k => keys[k] = false);
+  }
+});
+
+document.addEventListener('mousemove', onMouseMove);
+document.addEventListener('keydown', onKeyDown);
+document.addEventListener('keyup', onKeyUp);
+overlay.addEventListener('click', enterRoom);
+
+let running = false;
+let prevTime = 0;
+
+function animate(time) {
+  if (!running) return;
+  requestAnimationFrame(animate);
+  const delta = Math.min((time - prevTime) / 1000, 0.1);
+  prevTime = time;
+
+  if (locked) {
+    direction.set(0, 0, 0);
+    const forward = new THREE.Vector3();
+    camera.getWorldDirection(forward);
+    forward.y = 0;
+    forward.normalize();
+    const right = new THREE.Vector3().crossVectors(forward, camera.up).normalize();
+
+    if (keys.w) direction.add(forward);
+    if (keys.s) direction.sub(forward);
+    if (keys.d) direction.add(right);
+    if (keys.a) direction.sub(right);
+    if (direction.length() > 0) direction.normalize();
+
+    velocity.lerp(direction.multiplyScalar(SPEED), 8 * delta);
+    camera.position.addScaledVector(velocity, delta);
+
+    camera.position.x = Math.max(BOUNDS.minX, Math.min(BOUNDS.maxX, camera.position.x));
+    camera.position.z = Math.max(BOUNDS.minZ, Math.min(BOUNDS.maxZ, camera.position.z));
+    camera.position.y = EYE_HEIGHT;
+  } else {
+    velocity.set(0, 0, 0);
+  }
+
+  composer.render();
+}
+
+const viewerIO = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting && !running) {
+      running = true;
+      prevTime = performance.now();
+      requestAnimationFrame(animate);
+    } else if (!e.isIntersecting && running) {
+      running = false;
+    }
+  });
+}, { threshold: 0.01 });
+viewerIO.observe(container);
+
+const ro = new ResizeObserver(() => {
+  const w = container.clientWidth;
+  const h = container.clientHeight;
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  renderer.setSize(w, h);
+  composer.setSize(w, h);
+});
+ro.observe(container);
+</script>
+<script src="../_lib/theme.js"></script>
+</body>
+</html>

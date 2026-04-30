@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nick McVey · The Builder Shift</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script>(function(){try{var d=document.documentElement.dataset,g=function(k){return localStorage.getItem(k)},M={compact:['sm','compact'],normal:['md','normal'],airy:['lg','airy']};var t=g('nick.theme');if(t)d.theme=t;var s=g('nick.size')||'airy';if(M[s]){d.size=s;d.text=M[s][0];d.density=M[s][1];}}catch(e){}})();</script>
+<link rel="stylesheet" href="../../_lib/shell.css">
+<style>
+  /* ---- essay reader layout ---- */
+  .essay-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 48px;
+  }
+  @media (min-width: 1060px) {
+    .essay-layout {
+      grid-template-columns: 1fr 180px;
+      gap: 48px;
+    }
+    .essay-content { grid-column: 1; }
+    .essay-sidebar { grid-column: 2; grid-row: 1; }
+  }
+
+  /* ---- essay title block ---- */
+  .essay-head { margin-bottom: 36px; }
+  .essay-head h1 {
+    font-size: 28px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    margin: 0 0 12px;
+    line-height: 1.25;
+  }
+  .essay-head .subtitle {
+    color: var(--ink-2);
+    font-size: 15px;
+    line-height: 1.6;
+    max-width: 56ch;
+    margin: 0;
+    font-style: italic;
+  }
+
+  /* ---- essay body ---- */
+  .essay-body p {
+    color: var(--ink-2);
+    font-size: 15.5px;
+    line-height: 1.82;
+    max-width: 64ch;
+    margin: 0 0 24px;
+  }
+  .essay-body p.lead {
+    color: var(--ink);
+    font-size: 16.5px;
+  }
+  .essay-body h2 {
+    font-size: 19px;
+    font-weight: 500;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+    margin: 48px 0 20px;
+    line-height: 1.25;
+  }
+  .essay-body ul {
+    color: var(--ink-2);
+    font-size: 15.5px;
+    line-height: 1.82;
+    max-width: 64ch;
+    margin: 0 0 24px;
+    padding-left: 24px;
+    list-style: none;
+  }
+  .essay-body ul li {
+    margin-bottom: 12px;
+    padding-left: 4px;
+  }
+  .essay-body ul li::before {
+    content: "";
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    background: var(--accent);
+    border-radius: 50%;
+    margin-right: 12px;
+    margin-left: -20px;
+    vertical-align: middle;
+  }
+  .essay-body ul li strong {
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .essay-body .pull {
+    margin: 40px 0;
+    padding: 0 0 0 20px;
+    border-left: 2px solid var(--accent);
+    color: var(--ink);
+    font-size: 16.5px;
+    line-height: 1.6;
+    max-width: 56ch;
+  }
+  .essay-body .break {
+    color: var(--rule);
+    text-align: center;
+    margin: 44px 0;
+    font-size: 12px;
+    letter-spacing: 0.6em;
+    user-select: none;
+  }
+
+  /* ---- citation tooltips ---- */
+  .cite {
+    color: var(--accent);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--accent) 40%, transparent);
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+    cursor: help;
+    transition: text-decoration-color 140ms ease;
+  }
+  .cite:hover {
+    text-decoration-color: var(--accent);
+  }
+  .cite-tip {
+    display: none;
+  }
+  .tooltip-popup {
+    position: fixed;
+    width: 280px;
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    padding: 14px 16px;
+    font-size: 11.5px;
+    line-height: 1.6;
+    color: var(--ink-2);
+    z-index: 100;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    white-space: normal;
+    font-style: normal;
+    font-weight: 400;
+    letter-spacing: normal;
+    text-transform: none;
+    text-align: left;
+    opacity: 0;
+    transition: opacity 140ms ease;
+    pointer-events: none;
+  }
+  .tooltip-popup.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .tooltip-popup .cite-title {
+    color: var(--ink);
+    font-weight: 500;
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    margin-bottom: 6px;
+    display: block;
+  }
+  .tooltip-popup .cite-desc {
+    display: block;
+    margin-bottom: 8px;
+  }
+  .tooltip-popup .cite-source {
+    display: block;
+    font-size: 10px;
+    letter-spacing: 0.03em;
+  }
+  .tooltip-popup .cite-source a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+  .tooltip-popup .cite-source a:hover {
+    text-decoration: underline;
+  }
+
+  /* ---- right sidebar ---- */
+  .essay-sidebar {
+    position: sticky;
+    top: 64px;
+    align-self: start;
+    font-size: 11px;
+  }
+  @media (max-width: 1059px) { .essay-sidebar { display: none; } }
+
+  .sidebar-label {
+    color: var(--muted);
+    font-size: 9.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .sidebar-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .sidebar-meta-row {
+    display: flex;
+    justify-content: space-between;
+    color: var(--muted);
+  }
+  .sidebar-meta-row .val { color: var(--ink-2); }
+
+  .sidebar-tldr {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--rule);
+  }
+  .sidebar-tldr .sidebar-label { margin-bottom: 10px; }
+  .sidebar-tldr p {
+    color: var(--ink-2);
+    font-size: 11.5px;
+    line-height: 1.65;
+    margin: 0;
+  }
+
+  /* ---- footer ---- */
+  .essay-foot {
+    margin-top: 56px;
+    padding-top: 24px;
+    border-top: 1px solid var(--rule);
+  }
+  .essay-foot .back-link {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 12.5px;
+    transition: color 160ms ease;
+  }
+  .essay-foot .back-link:hover { color: var(--accent); }
+
+  /* ---- kill any inherited reveal styles ---- */
+  .page-essay [data-reveal] {
+    opacity: 1 !important;
+    visibility: visible !important;
+    white-space: normal !important;
+    transform: none !important;
+    animation: none !important;
+  }
+  .page-essay .scrambling { color: inherit !important; }
+
+  /* page-level fade in */
+  .page-essay main {
+    opacity: 0;
+    animation: essayPageFade 500ms ease 100ms forwards;
+  }
+  @keyframes essayPageFade {
+    to { opacity: 1; }
+  }
+
+  /* prevent orphans */
+  .essay-body p,
+  .essay-body .pull,
+  .essay-head h1,
+  .essay-head .subtitle {
+    text-wrap: pretty;
+    overflow-wrap: break-word;
+  }
+</style>
+</head>
+<body class="page-essay">
+<div class="shell">
+
+  <aside class="rail">
+    <div class="brand"><a href="../../"><span class="dot"></span> nick mcvey</a></div>
+    <div class="brand-sub">designer · prototyper</div>
+    <nav class="primary">
+      <a href="../../"><span class="idx">00</span> intro</a>
+      <a href="../"><span class="idx">01</span> essays &amp; talks</a>
+      <a href="../../art/"><span class="idx">02</span> art</a>
+      <a href="../../about/"><span class="idx">03</span> about</a>
+    </nav>
+    <div class="rail-foot">
+      <div class="display-menu" id="displayMenu">
+        <button class="display-trigger" type="button" aria-haspopup="true" aria-expanded="false">
+          <span class="dot"></span> display
+          <span class="chev" aria-hidden="true">^</span>
+        </button>
+        <div class="display-flyout" role="dialog" aria-label="Display settings">
+          <div class="dm-section">
+            <div class="dm-label">color</div>
+            <div class="dm-row colors">
+              <button class="theme-opt" type="button" data-theme="amber-dark"     style="--swatch: #d98a3d" title="amber dark"><span class="swatch"></span></button>
+              <button class="theme-opt" type="button" data-theme="cool-dark"      style="--swatch: #6db4ff" title="cool dark"><span class="swatch"></span></button>
+              <button class="theme-opt" type="button" data-theme="paper-light"    style="--swatch: #b86621" title="paper light"><span class="swatch"></span></button>
+              <button class="theme-opt" type="button" data-theme="terminal-green" style="--swatch: #4cff8a" title="terminal green"><span class="swatch"></span></button>
+            </div>
+          </div>
+          <div class="dm-section">
+            <div class="dm-label">size</div>
+            <div class="seg size">
+              <button type="button" data-value="compact" aria-label="compact">A</button>
+              <button type="button" data-value="normal"  aria-label="normal">A</button>
+              <button type="button" data-value="airy"    aria-label="airy">A</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+    <header class="essay-head">
+      <h1>The Builder Shift</h1>
+      <p class="subtitle">An attempt to rationalize a changing landscape, and a case for why everyone who builds software might need the same job title.</p>
+    </header>
+
+    <div class="essay-layout">
+
+      <div class="essay-content">
+        <div class="essay-body" id="essayBody">
+
+          <p class="lead">The design landscape is changing and I've been trying to make sense of it. I keep looking backward, at how we ended up here, to figure out whether our current positions actually hold.</p>
+
+          <p>I don't think they do. The jobs of building software are going to change fundamentally. All of them, design included. This is my attempt at a sober take on why, and where I think it lands: a convergence toward a single role. The builder.</p>
+
+          <div class="break">· · ·</div>
+
+          <h2>why design exists</h2>
+
+          <p>For a long time, engineers built the thing and decided what it looked like. When <span class="cite">projects started failing regularly<span class="cite-tip"><span class="cite-title">The Software Crisis</span>By the 1960s, software projects were routinely late, over budget, and broken. The 1968 NATO conference in Garmisch coined the term and pushed the industry toward formal engineering practices.<span class="cite-source"><a href="https://en.wikipedia.org/wiki/NATO_Software_Engineering_Conferences" target="_blank" rel="noopener">wikipedia ↗</a></span></span></span>, specs were invented for accountability. Then <span class="cite">GUIs<span class="cite-tip"><span class="cite-title">Graphical User Interfaces</span>The shift from command-line to graphical interfaces began in the 1970s at Xerox PARC and went mainstream with the Macintosh in 1984 and Windows in 1985.<span class="cite-source"><a href="https://en.wikipedia.org/wiki/History_of_the_graphical_user_interface" target="_blank" rel="noopener">wikipedia ↗</a></span></span></span> showed up and suddenly software had screens real people had to figure out. Design arrived because someone needed to sit with the human at the other end. Two things defined the lane:</p>
+
+          <ul>
+            <li><strong>Direction.</strong> A human-centered lens on what to build. The practice of being wrong cheaply before being wrong expensively.</li>
+            <li><strong>Craft.</strong> The discipline of caring about the gap between functional and good.</li>
+          </ul>
+
+          <p>Design was always additive. A quality multiplier on top of the engineering that actually shipped the product. Designers were grossly outnumbered from the start, and that ratio was always telling.</p>
+
+          <div class="break">· · ·</div>
+
+          <h2>on direction</h2>
+
+          <p>Direction was always the harder problem. What should we build? Who is it for? <span class="cite">Christopher Alexander<span class="cite-tip"><span class="cite-title">Christopher Alexander</span>Architect and design theorist. His 1964 book "Notes on the Synthesis of Form" argued that design is the process of achieving fit between a form and its context. His later "A Pattern Language" influenced fields from architecture to software engineering.<span class="cite-source"><a href="https://en.wikipedia.org/wiki/Christopher_Alexander" target="_blank" rel="noopener">wikipedia ↗</a></span></span></span> called design the process of achieving fit between a form and its context. The form is what you're making. The context is the problem. Design answered this through research, feedback loops, and iteration, constantly testing whether the thing being built actually fit the world it was going into. <span class="cite">Design systems<span class="cite-tip"><span class="cite-title">Design Systems</span>Reusable components, standards, and documentation that guide consistent product development. Examples: Material Design, Lightning, Fluent.<span class="cite-source"><a href="https://en.wikipedia.org/wiki/Design_system" target="_blank" rel="noopener">wikipedia ↗</a></span></span></span> scaled the answers by encoding affordances, accessibility defaults, and interaction patterns into shared infrastructure.</p>
+
+          <p>Anyone close enough to the problem can provide direction now. PMs do it. Engineers do it. The tools make it easier for everyone to act on what they see. So the question evolves. In a builder world, direction becomes focus. When everyone can build anything, the hard part is deciding what not to build.</p>
+
+          <div class="break">· · ·</div>
+
+          <h2>on craft</h2>
+
+          <p>The craft of design has been changing. Production design is increasingly supported by design systems that grow more complex and capable every year. The floor keeps getting lower and the ceiling keeps getting raised. Craft, in the traditional sense, is becoming table stakes.</p>
+
+          <p>So what comes after craft? I think it's style. Taste is relative and cultural. It doesn't have age restrictions or prerequisites. There are no barriers to it. Anyone can have it. But cultivating it takes time and exposure, and it's the thing that separates someone who can use the tools from someone who knows what to do with them. In a builder world, style is what you carry forward when everything else gets easier.</p>
+
+          <div class="break">· · ·</div>
+
+          <h2>the convergence</h2>
+
+          <p>This is also an economic story. The <span class="cite">ZIRP era<span class="cite-tip"><span class="cite-title">ZIRP Era</span>From roughly 2009–2022, near-zero interest rates fueled cheap capital, aggressive hiring, and a culture of experimentation. The rapid rate hikes of 2022–2023 ended it abruptly.<span class="cite-source"><a href="https://en.wikipedia.org/wiki/Zero_interest-rate_policy" target="_blank" rel="noopener">wikipedia ↗</a></span></span></span> promoted specialization. Cheap capital meant you could fund a UX researcher, a visual designer, an interaction designer, a content strategist, all on the same team. That era is over. The pressure now runs toward T-shaped people who cover more ground.</p>
+
+          <p>PM, design, and engineering still exist as specialties, and everyone has more agency over each other's domain. The boundaries blur because the tools let everyone act on what they see. The act of production is getting solved daily. The gap is in creation. The thinking, the decisions, the trade-offs.</p>
+
+          <div class="pull">Designers aren't going away. We're becoming the first wave of a much larger pool of people who build software. The title changes. The verb doesn't.</div>
+
+          <div class="break">· · ·</div>
+
+          <h2>the builder</h2>
+
+          <p>A builder works with extremely high agency. They don't wait for a ticket or a spec. They're closer to an internal entrepreneur who accepts failures alongside wins, learns from both, and iterates. They use every kind of intelligence available to solve problems. Their own, their teammates', their tools'. Some builders will focus on design. They might still be called designers. They'll just be owning outcomes instead of outputs.</p>
+
+          <p>And because production is cheap, because you can will things into existence almost as fast as you can think of them, restraint becomes a craft in itself. A good builder is as careful about what they don't ship as they are ambitious about what they do. We've never suffered from a shortage of people who can make things. We've suffered from not knowing what to build. That problem just got louder.</p>
+
+          <div class="pull">The constraint was never "can we build it." It was always "should we."</div>
+
+          <div class="break">· · ·</div>
+
+          <p>I want to be honest about what this is. It's my attempt to rationalize change I find unsettling. I'm not saying our current way of working is broken. We can continue how we have been. But I think doing so means leaving potential on the table, and there's an opportunity to embrace something new.</p>
+
+          <p>I'm not saying a title change fixes everything either. But a shift in mindset, in how we think about our responsibilities and what we're capable of, might. Change is happening fast and it's disorienting for everyone. I think the best response is to try to shape your own world. Build out what you think it is. Rationalize it as best you can, and then adjust your thinking as you learn more. I'll do the same. That's what any good designer would do.</p>
+
+        </div>
+
+        <div class="essay-foot">
+          <a class="back-link" href="../">← back to essays &amp; talks</a>
+        </div>
+      </div>
+
+      <div class="essay-sidebar">
+        <div class="sidebar-label">about this essay</div>
+        <div class="sidebar-meta">
+          <div class="sidebar-meta-row"><span>author</span> <span class="val">nick mcvey</span></div>
+          <div class="sidebar-meta-row"><span>published</span> <span class="val">apr 27, 2026</span></div>
+          <div class="sidebar-meta-row"><span>updated</span> <span class="val">apr 28, 2026</span></div>
+          <div class="sidebar-meta-row"><span>words</span> <span class="val" id="wordCount">—</span></div>
+          <div class="sidebar-meta-row"><span>read time</span> <span class="val" id="readTimeSidebar">—</span></div>
+        </div>
+
+        <div class="sidebar-tldr">
+          <div class="sidebar-label">tldr</div>
+          <p>Exploration got democratized. Systems handle the floor. The craft is what's left, and it's harder, not smaller. Loose predictions from someone trying to be rational about it instead of just optimistic.</p>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+</div>
+<!-- NO reveal.js on essay pages - essay owns its own behavior -->
+<script src="../../_lib/theme.js"></script>
+<script>
+(function() {
+  // word count + read time
+  var body = document.getElementById('essayBody');
+  var text = body.textContent.replace(/\s+/g, ' ').trim();
+  var words = text.split(' ').length;
+  var mins = Math.max(1, Math.ceil(words / 230));
+  document.getElementById('wordCount').textContent = words.toLocaleString();
+  document.getElementById('readTimeSidebar').textContent = mins + ' min';
+
+  // tooltip system
+  var popup = document.createElement('div');
+  popup.className = 'tooltip-popup';
+  document.body.appendChild(popup);
+
+  var hideTimeout;
+
+  document.querySelectorAll('.cite').forEach(function(cite) {
+    var tip = cite.querySelector('.cite-tip');
+    if (!tip) return;
+
+    cite.addEventListener('mouseenter', function() {
+      clearTimeout(hideTimeout);
+      popup.innerHTML = tip.innerHTML;
+      popup.classList.add('visible');
+
+      requestAnimationFrame(function() {
+        var rect = cite.getBoundingClientRect();
+        var popW = 280;
+        var popH = popup.offsetHeight;
+
+        var left = rect.left + rect.width / 2 - popW / 2;
+        var top = rect.top - popH - 10;
+
+        if (left < 8) left = 8;
+        if (left + popW > window.innerWidth - 8) left = window.innerWidth - popW - 8;
+        if (top < 8) top = rect.bottom + 10;
+
+        popup.style.left = left + 'px';
+        popup.style.top = top + 'px';
+      });
+    });
+
+    cite.addEventListener('mouseleave', function() {
+      hideTimeout = setTimeout(function() {
+        popup.classList.remove('visible');
+      }, 120);
+    });
+  });
+
+  popup.addEventListener('mouseenter', function() {
+    clearTimeout(hideTimeout);
+  });
+  popup.addEventListener('mouseleave', function() {
+    popup.classList.remove('visible');
+  });
+})();
+</script>
+</body>
+</html>
