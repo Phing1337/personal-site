@@ -1,79 +1,741 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Nick McVey · Designer</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+<title>Nick McVey — Spatial Portfolio (Prototype)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<script>(function(){try{var d=document.documentElement.dataset,g=function(k){return localStorage.getItem(k)},M={compact:['sm','compact'],normal:['md','normal'],airy:['lg','airy']};var t=g('nick.theme');if(t)d.theme=t;var s=g('nick.size')||'airy';if(M[s]){d.size=s;d.text=M[s][0];d.density=M[s][1];}}catch(e){}})();</script>
-<link rel="stylesheet" href="./_lib/shell.css">
+<style>
+  :root, [data-theme="light"]{
+    --bg:#FFFFFF; --ink:#0B0B0C; --ink-2:#3A3A3C; --muted:#8A8A8E;
+    --rule:#E3E3E5; --dot:rgba(0,0,0,.12); --accent:#2D5BFF; --on-accent:#FFFFFF;
+  }
+  [data-theme="dark"]{
+    --bg:#0B0B0C; --ink:#F4F4F5; --ink-2:#C4C4C8; --muted:#76767C;
+    --rule:#26262A; --dot:rgba(255,255,255,.14); --accent:#5B7CFF; --on-accent:#0B0B0C;
+  }
+  :root{--font-mono:'Geist Mono', ui-monospace, 'Cascadia Mono', Menlo, Consolas, monospace; --ease:cubic-bezier(.76,0,.24,1);}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);
+    font-family:var(--font-mono);color:var(--ink);
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+    user-select:none;-webkit-user-select:none;-moz-user-select:none;
+    transition:background-color .4s var(--ease), color .4s var(--ease);}
+
+  .grid{position:fixed;inset:0;z-index:0;pointer-events:none;
+    background-image:radial-gradient(circle, var(--dot) 1.05px, transparent 1.25px);
+    background-size:32px 32px;background-position:0 0;}
+
+  .viewport{position:fixed;inset:0;overflow:hidden;z-index:1;cursor:grab;touch-action:none;}
+  .viewport,.viewport .world,.panel,.wrap,.ghost,h1,h2,.lead,.station,.st-text,.cs-block{cursor:grab;}
+  .viewport.grabbing,.viewport.grabbing *{cursor:grabbing !important;}
+  a,.tile,.bub,.zoom button,.themebtn,.wcard,.wlink{cursor:pointer;}
+  .viewport.grabbing{cursor:grabbing;}
+  .world{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform;}
+
+  .panel{position:absolute;width:1180px;transform:translate(-50%,-50%);}
+  #home{left:0;top:0;}
+  #south{left:0;top:560px;transform:translate(-50%,0);}
+  #west{left:-1600px;top:0;}
+
+  .ghost{position:absolute;font-size:560px;font-weight:600;line-height:1;color:var(--ink);
+    opacity:.035;pointer-events:none;letter-spacing:-.04em;z-index:0;}
+  #south .ghost{top:-160px;left:-40px;}
+  #west  .ghost{top:-220px;left:-60px;}
+
+  .wrap{position:relative;width:100%;z-index:2;}
+  h1{font-size:76px;font-weight:600;line-height:1.0;letter-spacing:-.03em;text-align:center;}
+  h2{font-size:54px;font-weight:600;line-height:1.04;letter-spacing:-.025em;}
+  .lead{font-size:18px;line-height:1.75;color:var(--ink-2);margin-top:22px;}
+
+  .kbox{display:inline-block;background:var(--accent);color:var(--on-accent);padding:5px 11px;border-radius:5px;
+    font-weight:600;font-size:13px;letter-spacing:.1em;}
+  .ibox{display:inline-block;background:var(--ink);color:var(--bg);padding:0 10px;border-radius:5px;}
+  .eyebrow{margin-bottom:24px;}
+
+  .home-col{display:flex;flex-direction:column;align-items:center;text-align:center;}
+  .vr{width:150px;height:auto;margin-bottom:8px;pointer-events:none;-webkit-user-drag:none;}
+  [data-theme="dark"] .vr{filter:invert(1) hue-rotate(180deg);}
+  #home .lead{margin-top:28px;text-align:left;max-width:880px;color:var(--ink);}
+
+  .now-list{display:flex;flex-direction:column;margin-top:32px;max-width:760px;}
+  .now-list .row{display:flex;gap:20px;padding:18px 0;border-top:1px solid var(--rule);align-items:baseline;}
+  .now-list .row:last-child{border-bottom:1px solid var(--rule);}
+  .now-list .n{font-size:13px;color:var(--accent);min-width:30px;}
+  .now-list .t{font-size:16px;color:var(--ink);} .now-list .d{font-size:13.5px;color:var(--muted);margin-top:4px;}
+  .muted{color:var(--muted);}
+  .contact{display:flex;flex-wrap:wrap;gap:22px;align-items:center;margin-top:30px;padding-top:24px;border-top:1px solid var(--rule);font-size:15px;}
+  .contact a{color:var(--ink);text-decoration:none;border-bottom:2px solid var(--accent);padding-bottom:2px;}
+
+  .art{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:36px;max-width:900px;}
+  .tile{aspect-ratio:3/4;border-radius:12px;border:1px solid var(--rule);overflow:hidden;position:relative;display:flex;align-items:flex-end;padding:16px;transition:.3s var(--ease);}
+  .tile:hover{transform:translateY(-4px) rotate(-1deg);box-shadow:0 20px 44px rgba(0,0,0,.18);}
+  .tile span{font-size:13px;color:#fff;position:relative;z-index:2;text-shadow:0 1px 6px rgba(0,0,0,.4);}
+  .tile.t1{background:linear-gradient(150deg,#2D5BFF,#10246e);}
+  .tile.t2{background:linear-gradient(150deg,#1c1c1f,#000);}
+  .tile.t3{background:linear-gradient(150deg,#5a5a60,#222);}
+  .tile.t4{background:linear-gradient(150deg,#8a8a92,#3a3a40);}
+  .note{font-size:12px;color:var(--muted);margin-top:20px;}
+
+  /* art gallery (west) */
+  .artgrid{display:flex;gap:16px;margin-top:34px;}
+  .artcol{display:flex;flex-direction:column;gap:16px;width:300px;}
+  .artimg{width:100%;display:block;object-fit:cover;border-radius:12px;pointer-events:none;-webkit-user-drag:none;
+    box-shadow:0 14px 26px rgba(0,0,0,.16);}
+  .artarchive{border:1px solid var(--rule);border-radius:12px;height:280px;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:8px;background:rgba(127,127,127,.08);}
+  .artarchive b{font-size:14px;color:var(--ink);font-weight:600;} .artarchive span{font-size:12px;color:var(--muted);}
+
+  /* south: thinking + life */
+  .slabel{font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin:54px 0 22px;}
+  .about-row{display:grid;grid-template-columns:1.5fr 1fr;gap:60px;margin-top:26px;align-items:start;}
+  .bio p{font-size:16px;line-height:1.8;color:var(--ink-2);margin-bottom:16px;}
+  .facts .fact{border-top:1px solid var(--rule);padding:16px 0;}
+  .facts .fact:last-child{border-bottom:1px solid var(--rule);}
+  .facts .fl{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);}
+  .facts .fv{font-size:14px;color:var(--ink);margin-top:6px;line-height:1.6;}
+  .photos{display:flex;gap:18px;margin-top:30px;}
+  .photo{width:360px;height:280px;border-radius:14px;overflow:hidden;position:relative;border:1px solid var(--rule);background:rgba(127,127,127,.08);}
+  .photo img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;-webkit-user-drag:none;}
+  .photo.ph-empty{display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);font-size:12px;padding:16px;line-height:1.7;}
+  .photo .cap{position:absolute;left:0;right:0;bottom:0;padding:10px 14px;font-size:12px;color:#fff;background:linear-gradient(transparent,rgba(0,0,0,.55));}
+  .wcards{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:6px;}
+  .wcard{border:1px solid var(--rule);border-radius:8px;padding:24px;background:var(--bg);box-shadow:0 6px 20px rgba(0,0,0,.05);cursor:pointer;transition:transform .2s var(--ease),border-color .2s,box-shadow .2s;}
+  .wcard:hover{transform:translateY(-3px);border-color:var(--accent);box-shadow:0 14px 34px rgba(0,0,0,.10);}
+  .wcard .wtop{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--muted);}
+  .wcard .wtag{background:var(--accent);color:var(--on-accent);border-radius:999px;padding:3px 10px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;}
+  .wcard h3{font-size:21px;font-weight:600;margin-top:14px;color:var(--ink);}
+  .wcard p{font-size:14px;line-height:1.7;color:var(--ink-2);margin-top:10px;}
+  .wcard .wlink{color:var(--accent);font-size:13px;font-weight:600;margin-top:14px;display:inline-block;}
+
+  /* TIMELINE + CASE STUDY share the thread */
+  #timeline{position:absolute;left:0;top:0;}
+  .spine{position:absolute;height:2px;top:0;left:0;
+    background:repeating-linear-gradient(90deg, var(--accent) 0 7px, transparent 7px 19px);opacity:.85;}
+  .tl-cap{position:absolute;top:-7px;width:15px;height:15px;border-radius:50%;background:var(--accent);
+    box-shadow:0 0 0 4px var(--bg);transform:translateX(-50%);}
+  .vspine{position:absolute;width:2px;top:0;left:0;
+    background:repeating-linear-gradient(180deg, var(--accent) 0 7px, transparent 7px 19px);opacity:.85;}
+  .casescene{width:1500px;}
+  .casescene .cs-wrap{padding-left:64px;}
+  .casescene .cs-block{padding-top:0;}
+  .downcue{position:absolute;font-size:13px;font-weight:600;color:var(--accent);letter-spacing:.05em;}
+  .station{position:absolute;top:0;display:flex;flex-direction:column;
+    opacity:0;transform:translateY(22px);transition:opacity .6s var(--ease), transform .75s var(--ease);}
+  .station.in{opacity:1;transform:none;}
+  .st-node{position:absolute;top:-6px;left:-6px;width:12px;height:12px;border-radius:50%;
+    background:var(--accent);box-shadow:0 0 0 4px var(--bg);}
+  .st-text{padding-top:34px;max-width:600px;margin-bottom:44px;}
+  .st-year{font-size:60px;font-weight:600;color:var(--accent);letter-spacing:-.03em;line-height:1;}
+  .st-title{font-size:29px;font-weight:600;margin-top:12px;color:var(--ink);}
+  .st-blurb{font-size:16px;line-height:1.7;color:var(--ink-2);margin-top:14px;}
+  .st-cluster{position:relative;}
+  .ph{position:absolute;display:block;object-fit:cover;object-position:center;transform-origin:0 0;border-radius:8px;
+    pointer-events:none;-webkit-user-drag:none;filter:drop-shadow(0 14px 24px rgba(0,0,0,.26));}
+  .ph.cutout{filter:none;border-radius:0;}
+  .cph{display:block;object-fit:cover;object-position:top center;border-radius:10px;transform-origin:center;
+    pointer-events:none;-webkit-user-drag:none;filter:drop-shadow(0 16px 28px rgba(0,0,0,.26));}
+  .cph.cutout{filter:none;}
+
+  /* case study scenes */
+  .cs-block{padding-top:34px;}
+  .cs-title{font-size:50px;font-weight:600;letter-spacing:-.03em;line-height:1.04;margin-top:18px;color:var(--ink);}
+  .cs-h{font-size:38px;font-weight:600;letter-spacing:-.02em;line-height:1.08;margin-top:16px;color:var(--ink);}
+  .cs-sub{font-size:17px;line-height:1.7;color:var(--ink-2);margin-top:18px;max-width:600px;}
+  .cs-cap{font-size:13px;color:var(--muted);margin-top:18px;letter-spacing:.03em;max-width:620px;}
+  .cs-stats{display:flex;gap:48px;margin-top:32px;}
+  .cs-stat b{font-size:50px;font-weight:600;color:var(--accent);display:block;letter-spacing:-.02em;}
+  .cs-stat span{font-size:12px;color:var(--muted);letter-spacing:.08em;}
+  .cs-bignum{display:flex;gap:18px;margin-top:26px;}
+  .cs-bignum .box{background:var(--accent);color:var(--on-accent);padding:22px 28px;border-radius:14px;}
+  .cs-bignum .box b{font-size:54px;font-weight:600;display:block;letter-spacing:-.03em;line-height:1;}
+  .cs-bignum .box span{font-size:12px;letter-spacing:.08em;}
+  /* big editorial case scenes (vertical descent) */
+  .cs-title-xl{font-size:92px;font-weight:600;letter-spacing:-.04em;line-height:1.0;color:var(--ink);}
+  .cs-h-xl{font-size:56px;font-weight:600;letter-spacing:-.03em;line-height:1.06;color:var(--ink);}
+  .cs-sub-lg{font-size:23px;line-height:1.7;color:var(--ink-2);}
+  .cs-cap-lg{font-size:16px;color:var(--muted);margin-top:28px;letter-spacing:.03em;max-width:900px;}
+  .cs-row{display:flex;gap:90px;align-items:center;}
+  .cs-stats-lg{display:flex;gap:80px;margin-top:54px;}
+  .cs-stats-lg b{font-size:80px;font-weight:600;color:var(--accent);display:block;letter-spacing:-.03em;line-height:1;}
+  .cs-stats-lg span{font-size:14px;color:var(--muted);letter-spacing:.08em;margin-top:10px;display:block;}
+  .cs-bignum-lg{display:flex;gap:26px;margin-top:44px;}
+  .cs-bignum-lg .box{background:var(--accent);color:var(--on-accent);padding:36px 46px;border-radius:18px;}
+  .cs-bignum-lg .box b{font-size:90px;font-weight:600;display:block;letter-spacing:-.04em;line-height:1;}
+  .cs-bignum-lg .box span{font-size:14px;letter-spacing:.08em;margin-top:12px;display:block;}
+
+  /* overlays */
+  .brand{position:fixed;top:24px;left:28px;z-index:60;display:flex;align-items:center;gap:10px;font-size:13px;}
+  .brand .b{width:9px;height:9px;border-radius:50%;background:var(--accent);}
+  .brand b{font-weight:600;} .brand span{color:var(--muted);font-size:11px;letter-spacing:.1em;}
+
+  .themebtn{position:fixed;top:24px;right:28px;z-index:60;font-family:inherit;font-size:11px;letter-spacing:.12em;
+    padding:9px 13px;border:1px solid var(--rule);border-radius:7px;background:transparent;color:var(--ink);transition:.2s;}
+  .themebtn:hover{border-color:var(--accent);color:var(--accent);}
+
+  .hint{position:fixed;z-index:55;display:flex;font-size:15px;line-height:1.55;color:var(--ink);
+    transition:opacity .4s var(--ease);pointer-events:none;}
+  body:not([data-pos="home"]) .hint{opacity:0;}
+  .hint svg{stroke:var(--ink);stroke-width:1.4;fill:none;overflow:visible;}
+  .hint.left{left:60px;top:50%;transform:translateY(-60%);flex-direction:column;gap:14px;align-items:flex-start;width:200px;}
+  .hint.right{right:48px;top:30%;transform:translateY(-50%);flex-direction:column;gap:14px;align-items:flex-start;width:260px;}
+  .hint.down{left:50%;bottom:96px;transform:translateX(-50%);flex-direction:row;gap:18px;align-items:flex-start;width:320px;}
+  .hint.down .tx{padding-top:2px;}
+
+  .navrail{position:fixed;top:24px;left:50%;transform:translateX(-50%);z-index:60;display:flex;gap:10px;}
+  .bub{display:flex;align-items:center;gap:9px;padding:10px 18px;border-radius:999px;font-size:13px;
+    background:var(--ink);color:var(--bg);opacity:0;pointer-events:none;transition:.4s var(--ease);transform:translateY(-14px);white-space:nowrap;}
+  .bub:hover{background:var(--accent);color:var(--on-accent);}
+  .bubface{width:20px;height:20px;border-radius:50%;object-fit:cover;object-position:50% 30%;flex:0 0 auto;}
+  body:not([data-pos="home"]) .bub.home{opacity:1;pointer-events:auto;transform:none;}
+  body.in-case .bub.parent{opacity:1;pointer-events:auto;transform:none;}
+
+  .dock{position:fixed;left:28px;bottom:24px;z-index:60;display:flex;flex-direction:column;gap:14px;align-items:flex-start;}
+  .help{font-size:11.5px;color:var(--muted);letter-spacing:.02em;line-height:1.6;max-width:260px;}
+  .help b{color:var(--ink);font-weight:600;}
+  .zoom{display:flex;gap:6px;align-items:center;}
+  .zoom button{font-family:inherit;width:34px;height:34px;border:1px solid var(--rule);
+    background:var(--bg);border-radius:8px;font-size:16px;color:var(--ink);transition:.2s;}
+  .zoom button:hover{border-color:var(--accent);color:var(--accent);}
+  .zoom .lvl{font-size:12px;color:var(--muted);min-width:46px;text-align:center;}
+
+  /* on-canvas dialogs */
+  .modal{position:fixed;inset:0;z-index:200;display:none;}
+  .modal.open{display:block;}
+  .modal-backdrop{position:absolute;inset:0;background:rgba(8,8,10,.55);backdrop-filter:blur(3px);animation:mfade .25s ease;}
+  .modal-panel{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:var(--bg);color:var(--ink);
+    border:1px solid var(--rule);border-radius:16px;box-shadow:0 50px 120px rgba(0,0,0,.45);
+    width:min(820px,92vw);max-height:86vh;overflow:auto;animation:mpop .28s var(--ease);}
+  .modal.iframe .modal-panel{width:min(1140px,95vw);height:84vh;overflow:hidden;display:flex;flex-direction:column;}
+  .modal-x{position:absolute;top:16px;right:18px;z-index:3;width:34px;height:34px;border-radius:50%;border:1px solid var(--rule);
+    background:var(--bg);color:var(--ink);font-size:20px;line-height:1;cursor:pointer;transition:.2s;}
+  .modal-x:hover{background:var(--accent);color:var(--on-accent);border-color:var(--accent);}
+  .modal-body{padding:44px;}
+  .modal.iframe .modal-body{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;padding:0;}
+  .m-tag{display:inline-block;background:var(--accent);color:var(--on-accent);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:5px 11px;border-radius:999px;}
+  .m-meta{font-size:12px;color:var(--muted);margin-top:18px;letter-spacing:.04em;}
+  .m-title{font-size:40px;font-weight:600;letter-spacing:-.025em;line-height:1.08;margin-top:12px;}
+  .m-text{font-size:16px;line-height:1.8;color:var(--ink-2);margin-top:22px;}
+  .m-text p{margin-bottom:16px;} .m-text .muted{color:var(--muted);font-size:14px;}
+  .m-link{display:inline-block;margin-top:26px;background:var(--ink);color:var(--bg);padding:12px 20px;border-radius:999px;font-size:13px;text-decoration:none;}
+  .m-link:hover{background:var(--accent);color:var(--on-accent);}
+  .m-frame-head{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:18px 56px 18px 24px;border-bottom:1px solid var(--rule);flex:0 0 auto;}
+  .m-frame-head .ft{font-size:15px;font-weight:600;} .m-frame-head .fm{font-size:12px;color:var(--muted);}
+  .m-frame{flex:1 1 auto;border:0;width:100%;background:#0b0b0c;}
+  @keyframes mpop{from{opacity:0;transform:translate(-50%,-46%) scale(.97)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+  @keyframes mfade{from{opacity:0}to{opacity:1}}
+</style>
 </head>
-<body class="page-intro">
-<div class="shell">
+<body data-theme="light" data-pos="home">
 
-  <aside class="rail">
-    <div class="brand"><a href="./"><span class="dot"></span> nick mcvey</a></div>
-    <div class="brand-sub">designer · prototyper</div>
-    <nav class="primary">
-      <a href="./" class="active">intro</a>
-      <a href="./essays/">essays &amp; talks</a>
-      <a href="./art/">art</a>
-      <a href="./about/">about</a>
-    </nav>
-    <div class="rail-foot">
-      <div class="display-menu" id="displayMenu">
-        <button class="display-trigger" type="button" aria-haspopup="true" aria-expanded="false">
-          <span class="dot"></span> display
-          <span class="chev" aria-hidden="true">^</span>
-        </button>
-        <div class="display-flyout" role="dialog" aria-label="Display settings">
-          <div class="dm-section">
-            <div class="dm-label">color</div>
-            <div class="dm-row colors">
-              <button class="theme-opt" type="button" data-theme="amber-dark"     style="--swatch: #d98a3d" title="amber dark"><span class="swatch"></span></button>
-              <button class="theme-opt" type="button" data-theme="cool-dark"      style="--swatch: #6db4ff" title="cool dark"><span class="swatch"></span></button>
-              <button class="theme-opt" type="button" data-theme="paper-light"    style="--swatch: #b86621" title="paper light"><span class="swatch"></span></button>
-              <button class="theme-opt" type="button" data-theme="terminal-green" style="--swatch: #4cff8a" title="terminal green"><span class="swatch"></span></button>
+  <div class="grid" id="grid"></div>
+
+  <div class="brand"><span class="b"></span><b>NICK McVEY</b><span>CANVAS · PROTOTYPE</span></div>
+  <button class="themebtn" id="themebtn">DARK</button>
+
+  <div class="viewport" id="viewport">
+    <div class="world" id="world">
+
+      <section class="panel" id="home" data-pos="home">
+        <div class="wrap home-col">
+          <img class="vr" src="https://app.paper.design/file-assets/01KVRGREPQWV857GHSMNPTJE3H/5HBH9RDB8RFX19K97V9VAJ1HTA.png" alt="Nick wearing a VR headset" />
+          <h1>Hi, I&rsquo;m <span class="ibox">Nick</span></h1>
+          <p class="lead">I&rsquo;m an artist, designer, and technologist, and I&rsquo;ve spent my career building things that help other people build. I believe creativity is one of the best parts of being human, and that great tools multiply it, putting real expressive power into more hands.</p>
+        </div>
+      </section>
+
+      <section class="panel" id="south" data-pos="south">
+        <div class="ghost">S</div>
+        <div class="wrap">
+          <div class="eyebrow"><span class="kbox">SOUTH · LIFE &amp; THINKING</span></div>
+          <h2>Things I think about</h2>
+          <div class="about-row">
+            <div class="bio">
+              <p>I&rsquo;m a designer who likes to make the thing, not just describe it. I draw, I prototype in code, I build small games on the side. I think about design in my spare time.</p>
+              <p>I love systems thinking &mdash; how design and systems come together to solve real problems. Architecture and city planning pull at me for the same reason.</p>
+              <p>I came up through video games and mobile, did a stint in consulting and advertising, and ended up in tech designing system-level interfaces.</p>
+              <p style="color:var(--ink)">Outside of work: urban sketching, my dog, and my son Theo.</p>
+            </div>
+            <div class="facts">
+              <div class="fact"><div class="fl">now</div><div class="fv">designer · prototyper, seattle</div></div>
+              <div class="fact"><div class="fl">tools</div><div class="fv">figma, godot, web tech, after effects, adobe suite, maya, blender</div></div>
+              <div class="fact"><div class="fl">previously</div><div class="fv">consulting, advertising, mobile gaming</div></div>
             </div>
           </div>
-          <div class="dm-section">
-            <div class="dm-label">size</div>
-            <div class="seg size">
-              <button type="button" data-value="compact" aria-label="compact">A</button>
-              <button type="button" data-value="normal"  aria-label="normal">A</button>
-              <button type="button" data-value="airy"    aria-label="airy">A</button>
+
+          <div class="photos">
+            <div class="photo ph-empty">Theo on his Warthog &#127950;<br><span style="opacity:.65">drop the photo here</span></div>
+            <div class="photo ph-empty">Me + things I like to do<br><span style="opacity:.65">drop a photo here</span></div>
+          </div>
+
+          <div class="slabel">Essays &amp; talks</div>
+          <div class="wcards">
+            <div class="wcard" data-modal="builder-shift">
+              <div class="wtop"><span>april 2026</span><span class="wtag">essay</span></div>
+              <h3>The Builder Shift</h3>
+              <p>The design landscape is changing. Looking backward at how we ended up here and whether our current positions support what comes next.</p>
+              <span class="wlink">~6 min read &rarr;</span>
+            </div>
+            <div class="wcard" data-modal="vibe-design">
+              <div class="wtop"><span>april 2026</span><span class="wtag">interactive talk</span></div>
+              <h3>Vibe Design &amp; The Dynamic Medium</h3>
+              <p>Designing with AI as a creative medium. A goals-and-constraints framework with a 3D exploration simulation and live interactive demos.</p>
+              <span class="wlink">~40 slides &rarr;</span>
+            </div>
+          </div>
+
+          <div class="slabel">Side projects</div>
+          <div class="wcards">
+            <div class="wcard" data-modal="progress-app">
+              <div class="wtop"><span>project</span><span style="font-size:11px;letter-spacing:.08em;text-transform:uppercase">github &#8599;</span></div>
+              <h3>Progress App</h3>
+              <p>A gamified mood-tracking PWA I rebuild against each new AI model release to see how the medium is changing.</p>
+              <span class="wlink">view on github &rarr;</span>
+            </div>
+            <div class="wcard" data-modal="controller">
+              <div class="wtop"><span>project</span><span style="font-size:11px;letter-spacing:.08em;text-transform:uppercase">github &#8599;</span></div>
+              <h3>Controller Input Playground</h3>
+              <p>A web testbed for gamepad controller mappings and tuning the feel of pointer interactions.</p>
+              <span class="wlink">view on github &rarr;</span>
+            </div>
+          </div>
+
+          <div class="contact">
+            <span class="muted">Say hello &rarr;</span>
+            <a>hello@nickmcvey.com</a><a>LinkedIn</a><a>Read.cv</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" id="west" data-pos="west">
+        <div class="ghost">W</div>
+        <div class="wrap">
+          <div class="eyebrow"><span class="kbox">WEST · ART</span></div>
+          <h2><span class="ibox">Art</span> &amp; sketches</h2>
+          <p class="lead">Before the portfolios and the portals, I was an artist. I still am.</p>
+          <div class="artgrid">
+            <div class="artcol">
+              <img class="artimg" style="height:240px" src="https://app.paper.design/file-assets/01KVRGREPQWV857GHSMNPTJE3H/197KDWXSF86WNC2N5KRTEW1KW2.png" alt="">
+              <img class="artimg" style="height:380px" src="https://app.paper.design/file-assets/01KVRGREPQWV857GHSMNPTJE3H/4JQX0EBVPV5J8WNXSRFPK57S39.png" alt="">
+            </div>
+            <div class="artcol">
+              <img class="artimg" style="height:430px" src="https://app.paper.design/file-assets/01KVRGREPQWV857GHSMNPTJE3H/1FCA2V18T6F6A0E6HX11DVWMDC.png" alt="">
+              <img class="artimg" style="height:250px" src="https://app.paper.design/file-assets/01KVRGREPQWV857GHSMNPTJE3H/235BTJRHZYB681Q0MDRKFHC4A8.png" alt="">
+              <img class="artimg" style="height:280px" src="https://app.paper.design/file-assets/01KVRGREPQWV857GHSMNPTJE3H/2XAHZRDT903D94BQ47HS8GGRXT.png" alt="">
+            </div>
+            <div class="artcol">
+              <img class="artimg" style="height:400px" src="https://app.paper.design/file-assets/01KVRGREPQWV857GHSMNPTJE3H/6AQDT5TQMZS3GW44TCTNV5EG1S.jpg" alt="">
+              <img class="artimg" style="height:270px;transform:rotate(6deg);box-shadow:0 0 18px rgba(0,0,0,.45)" src="https://app.paper.design/file-assets/01KVRGREPQWV857GHSMNPTJE3H/0PDY822WGB5HYGW1V87652791N.png" alt="">
+              <div class="artarchive"><b>38 pieces in the archive</b><span>sculpting · painting · illustration · 3d</span></div>
             </div>
           </div>
         </div>
-      </div>
+      </section>
+
+      <div id="timeline"></div>
+
     </div>
-  </aside>
+  </div>
 
-  <main>
-    <section class="intro">
-      <div class="intro-body">
-        <h2>
-          <em data-reveal>Maker.</em><span data-reveal> Designer.</span><span data-reveal> Builder.</span>
-        </h2>
-        <div class="meta">
-          <span data-reveal><b>based</b> · seattle</span>
-        </div>
-        <p data-reveal>I'm an experience designer with a knack for highly technical problems and a curiosity that's taken me across a lot of territory. I've worked on interfaces for story-driven games, dashboards for government agencies, tools for game developers, and now Xbox and console experiences for players all over the world. The domains keep shifting, but the appetite for what's next never has.</p>
-        <p data-reveal>I grew up making art and never stopped. I'm drawn to unfamiliar problems, new mediums, and the kind of people who are genuinely excited about what they're building. I work best in small teams where the ownership is real.</p>
+  <div class="hint left">
+    <svg width="74" height="14" viewBox="0 0 74 14"><line x1="8" y1="7" x2="74" y2="7"/><polyline points="15,1 2,7 15,13"/></svg>
+    <span class="tx">Drag left to see my art and sketches</span>
+  </div>
+  <div class="hint right">
+    <svg width="74" height="14" viewBox="0 0 74 14"><line x1="0" y1="7" x2="66" y2="7"/><polyline points="59,1 72,7 59,13"/></svg>
+    <span class="tx">Drag this way to travel through my work history and case studies</span>
+  </div>
+  <div class="hint down">
+    <svg width="14" height="74" viewBox="0 0 14 74"><line x1="7" y1="0" x2="7" y2="66"/><polyline points="1,59 7,72 13,59"/></svg>
+    <span class="tx">Drag down to read some things i think about and my life</span>
+  </div>
 
-        <div class="links">
-          <a href="./essays/" data-reveal data-text="→ essays & talks">→ essays &amp; talks</a>
-          <a href="./art/" data-reveal data-text="→ art">→ art</a>
-          <a href="./about/" data-reveal data-text="→ about">→ about</a>
-        </div>
-      </div>
-    </section>
-  </main>
+  <div class="navrail">
+    <div class="bub home" data-go="home"><img class="bubface" src="https://app.paper.design/file-assets/01KVRGREPQWV857GHSMNPTJE3H/5HBH9RDB8RFX19K97V9VAJ1HTA.png" alt=""> back to center</div>
+    <div class="bub parent" id="parentBubble">&uarr; 2021 · The Xbox era</div>
+  </div>
 
-</div>
-<script src="./_lib/reveal.js"></script>
-<script src="./_lib/theme.js"></script>
+  <div class="dock">
+    <div class="help"><b>Scroll</b> to zoom &middot; <b>click &amp; drag</b> to move &middot; <b>arrow keys</b> to navigate</div>
+    <div class="zoom">
+      <button id="zout" title="Zoom out">&minus;</button>
+      <span class="lvl" id="zlvl">100%</span>
+      <button id="zin" title="Zoom in">+</button>
+      <button id="zreset" title="Reset view">&#8982;</button>
+    </div>
+  </div>
+
+  <div class="modal" id="modal">
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-panel">
+      <button class="modal-x" data-close aria-label="Close">&times;</button>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+<script>
+  const A = 'https://app.paper.design/file-assets/01KVRGREPQWV857GHSMNPTJE3H/';
+  const stations = [
+    { year:'2008', title:'Baby\u2019s first game',
+      blurb:'My first game, Animo Nex \u2014 built with friends for Microsoft\u2019s Dream Build Play 2008 on Xbox 360 using XNA.',
+      box:{w:685,h:354}, imgs:[
+        {u:'7N1HFGX8FR1FN6V14Q8VCV18T2.png',w:182,h:130,x:492,y:224,r:8},
+        {u:'5NY05JD8DCRXS9VE4K5V4Z8VVT.png',w:223,h:175,x:462,y:0,rot:1.24,r:5},
+        {u:'4S11BMCQBWSFN62W3ZNR2J94SJ.png',w:436,h:284,x:0,y:21,rot:-2.23,r:10},
+      ]},
+    { year:'2012', title:'Concept artist',
+      blurb:'I started my career as a concept artist, 3D modeler, and texture painter \u2014 cranking out social-casual games in weeks for audiences in the tens of millions.',
+      box:{w:698,h:422}, imgs:[
+        {u:'15Z2ZTMWD4KCV1VM2Q8BMQS4SE.png',w:451,h:293,x:59,y:35,rot:-1,r:8,b:2},
+        {u:'2GW41C6V0XBRQZHJFASFT2BSMQ.png',w:294,h:233,x:371,y:153,rot:3.69,r:8},
+      ]},
+    { year:'2013', title:'Designing at scale',
+      blurb:'Those games reached 40M+ monthly players. I learned to craft tiny, addictive loops that held up at massive scale.',
+      box:{w:622,h:369}, imgs:[
+        {u:'7ZXV6HRWW2E687FSH5YG5HNT98.png',w:398,h:245,x:18,y:24,rot:4.3,r:7},
+        {u:'6DW1DPDCDMBYXEB65KFS4WRDWJ.png',w:294,h:166,x:321,y:12,rot:-2.3,r:7},
+        {u:'02DFJFA3M7E28TN4ZCBMV2YE4S.png',w:296,h:53,x:228,y:268,r:4},
+        {u:'0G0M70P529P8ZSHVDP6DE336M7.png',w:294,h:48,x:228,y:321,r:4},
+      ]},
+    { year:'2014', title:'UI design',
+      blurb:'I moved into UI design on mobile games \u2014 pushing the limits of UI affordances and pioneering new interaction patterns.',
+      box:{w:776,h:324}, imgs:[
+        {u:'3NNJDZ4YC0BYK6VS2K1B8HGXZY.png',w:379,h:213,x:391,y:51,rot:-1.99,r:9,b:2},
+        {u:'7H6GKR5VAG4E7DKZ0FD9AHHTYP.jpg',w:352,h:264,x:15,y:0,rot:3.19,r:8},
+        {u:'087PB87X59PAQG1XBEBC642AJ7.png',w:280,h:174,x:220,y:150,r:13},
+      ]},
+    { year:'2015', title:'UX &amp; SaaS',
+      blurb:'I jumped into UX during the SaaS craze of 2015, consulting for clients from tax firms to governments as the world embraced gamification.',
+      box:{w:552,h:347}, imgs:[
+        {u:'4ZGBPJGPYE7428E2KNT1HQD8DC.png',w:457,h:295,x:0,y:0,r:7},
+        {u:'0VZVCVRSWTGQCF6XKHPGZZ5Z8G.jpg',w:290,h:166,x:262,y:181,r:4},
+      ]},
+    { year:'2016', title:'Advertising',
+      blurb:'Then I got a taste of advertising \u2014 building game-style mechanics into Microsoft\u2019s Partner Education program to keep learners hooked.',
+      box:{w:542,h:332}, imgs:[
+        {u:'57PR2GSAWAQ5RCZFPDEH9Q4GFR.png',w:542,h:332,x:0,y:0,rot:-1.5,r:8},
+      ]},
+    { year:'2018', title:'Microsoft Cloud + AI',
+      blurb:'I joined Microsoft to help ship a developer tool for IoT devices that would grow into the Power Platform.',
+      box:{w:812,h:409}, imgs:[
+        {u:'0DRGNJN8CRBXQDB33KA94G09SP.png',w:486,h:272,x:295,y:124,r:7},
+        {u:'01KVTS763XVE861RCE40TRN8SK.png',w:487,h:273,x:82,y:0,r:9},
+      ]},
+    { year:'2021', title:'The Xbox era',
+      blurb:'Now I design the tools studios use to bring their games to Xbox \u2014 onboarding, publishing, and the platform itself.',
+      box:{w:540,h:360}, imgs:[
+        {u:'3N1JDNMA80NZZFTN3308RMGXS6.png',w:500,h:312,x:0,y:24,rot:-2,r:10,b:1},
+      ]},
+  ];
+
+  const tl = document.getElementById('timeline');
+  const START = 820, GAP = 150, LEADIN = 560;
+  let cur = START;
+  stations.forEach(s => { s._x = cur; s._w = Math.max(640, s.box.w); cur += s._w + GAP; });
+
+  stations.forEach(s => {
+    const el = document.createElement('div');
+    el.className = 'station'; el.style.left = s._x + 'px';
+    const imgs = s.imgs.map(im =>
+      `<img class="ph" data-u="${im.u}" src="${A}${im.u}" style="left:${im.x}px;top:${im.y}px;width:${im.w}px;height:${im.h}px;`+
+      `transform:rotate(${im.rot||0}deg);border-radius:${im.r||8}px;`+
+      `${im.b?`outline:${im.b}px solid #000;`:''}">`
+    ).join('');
+    el.innerHTML =
+      `<div class="st-node"></div>`+
+      `<div class="st-text">${s.year?`<div class="st-year">${s.year}</div>`:''}`+
+      `<div class="st-title">${s.title}</div><div class="st-blurb">${s.blurb}</div></div>`+
+      `<div class="st-cluster" style="width:${s.box.w}px;height:${s.box.h}px;">${imgs}</div>`;
+    tl.appendChild(el);
+  });
+
+  /* ---- Xbox case study, dropped onto the canvas as you keep dragging ---- */
+  const xboxX = stations[stations.length-1]._x;
+  const caseColX = xboxX;
+  const caseScenes = [
+    { html:
+      `<div class="cs-block" style="max-width:1320px;">
+         <span class="kbox">CASE STUDY · DEVELOPER ONBOARDING</span>
+         <div style="font-size:56px;font-weight:600;letter-spacing:-.03em;line-height:1.06;margin-top:30px;max-width:1180px;color:var(--ink);">Onto Xbox in two weeks, not six.</div>
+         <div class="cs-sub-lg" style="margin-top:30px;max-width:900px;">A developer pipeline is a serious business partnership &mdash; getting a studio onboarded shouldn&rsquo;t take six weeks. So I set out to automate the whole process end-to-end, without giving up curation.</div>
+       </div>` },
+    { html:
+      `<div class="cs-block cs-row">
+         <div style="flex:0 0 480px;">
+           <span class="kbox">THE OLD WAY IN</span>
+           <div class="cs-h-xl" style="margin-top:24px;">Getting in meant getting lost.</div>
+           <div class="cs-sub-lg" style="margin-top:26px;max-width:460px;">A maze of static sites and unstructured email &mdash; no front door, and no way to track where you stood.</div>
+         </div>
+         <div style="display:flex;align-items:center;flex:0 0 auto;">
+           <img class="cph" data-u="2KNRCJRBRAPMCEPSGHMJ3Y4BFG.png" src="${A}2KNRCJRBRAPMCEPSGHMJ3Y4BFG.png" style="width:440px;height:400px;transform:rotate(-4deg);filter:grayscale(.2) drop-shadow(0 16px 28px rgba(0,0,0,.26));">
+           <img class="cph" data-u="5JBW6E31M3M3JNM1XMN7Q0Q21D.png" src="${A}5JBW6E31M3M3JNM1XMN7Q0Q21D.png" style="width:380px;height:330px;margin-left:-70px;transform:rotate(3deg);filter:grayscale(.2) drop-shadow(0 16px 28px rgba(0,0,0,.26));">
+           <img class="cph" data-u="28YMHBYF7SMRHZ1FCAGW2833QB.png" src="${A}28YMHBYF7SMRHZ1FCAGW2833QB.png" style="width:300px;height:360px;margin-left:-60px;transform:rotate(-2deg);filter:grayscale(.3) drop-shadow(0 16px 28px rgba(0,0,0,.26));">
+         </div>
+       </div>` },
+    { html:
+      `<div class="cs-block">
+         <span class="kbox">WHAT I BUILT</span>
+         <div class="cs-h-xl" style="margin-top:24px;max-width:1000px;">One front door. One guided path.</div>
+         <div style="display:flex;align-items:flex-start;gap:48px;margin-top:48px;">
+           <img class="cph" data-u="3N1JDNMA80NZZFTN3308RMGXS6.png" src="${A}3N1JDNMA80NZZFTN3308RMGXS6.png" style="width:600px;height:400px;transform:rotate(-1.5deg);border-radius:12px;">
+           <img class="cph" data-u="4HF1VTWBDMPEDAJ44FGTJTS2TJ.png" src="${A}4HF1VTWBDMPEDAJ44FGTJTS2TJ.png" style="width:600px;height:440px;transform:rotate(2deg);border-radius:12px;">
+         </div>
+         <div class="cs-cap-lg">A unified, dynamic portal &mdash; and a guided application wizard with live progress for devs and curators alike.</div>
+       </div>` },
+    { html:
+      `<div class="cs-block">
+         <span class="kbox">IMPACT</span>
+         <div class="cs-h-xl" style="margin-top:24px;">Faster in. Cleaner out.</div>
+         <div class="cs-bignum-lg">
+           <div class="box"><b>6&rarr;2</b><span>WEEKS TO ONBOARD</span></div>
+           <div class="box"><b>&minus;75%</b><span>FORM FIELDS</span></div>
+         </div>
+         <div class="cs-sub-lg" style="margin-top:40px;max-width:900px;">Spam fell while acceptance quality rose &mdash; indie games now reach Xbox sooner, strengthening the catalog and Game Pass.</div>
+       </div>` },
+    { html:
+      `<div class="cs-block">
+         <span class="kbox">NEXT</span>
+         <div class="cs-h-xl" style="margin-top:24px;">Publishing &amp; game testing.</div>
+         <div class="cs-sub-lg" style="margin-top:28px;max-width:760px;">Once a developer is in, the next challenge is getting their game out. That case study is coming soon.</div>
+       </div>` },
+  ];
+
+  // horizontal thread: home -> the 2021 node
+  const spine = document.createElement('div');
+  spine.className = 'spine';
+  spine.style.left = LEADIN + 'px';
+  spine.style.top = '0px';
+  spine.style.width = (xboxX + 6 - LEADIN) + 'px';
+  tl.appendChild(spine);
+
+  // cue to descend into the case study
+  const cue = document.createElement('div');
+  cue.className = 'downcue';
+  cue.style.left = (caseColX + 20) + 'px';
+  cue.style.top = '880px';
+  cue.innerHTML = '&darr;&nbsp; drag down for the case study';
+  tl.appendChild(cue);
+
+  // case study scenes stack DOWN from the Xbox era (vertical descent)
+  let cy0 = 1150;
+  caseScenes.forEach(sc => {
+    const el = document.createElement('div');
+    el.className = 'station casescene';
+    el.style.left = caseColX + 'px';
+    el.style.top = cy0 + 'px';
+    el.innerHTML = `<div class="st-node"></div><div class="cs-wrap">${sc.html}</div>`;
+    tl.appendChild(el);
+    cy0 += el.offsetHeight + 300;
+  });
+  const caseEndY = cy0;
+
+  // vertical thread down through the case study
+  const vspine = document.createElement('div');
+  vspine.className = 'vspine';
+  vspine.style.left = (caseColX - 1) + 'px';
+  vspine.style.top = '0px';
+  vspine.style.height = caseEndY + 'px';
+  tl.appendChild(vspine);
+
+  const c1 = document.createElement('div'); c1.className = 'tl-cap'; c1.style.left = LEADIN + 'px'; tl.appendChild(c1);
+  const c2 = document.createElement('div'); c2.className = 'tl-cap'; c2.style.left = caseColX + 'px'; c2.style.top = (caseEndY - 7) + 'px'; tl.appendChild(c2);
+
+  // strip the shadow from transparent (alpha) PNGs so cutouts just float
+  function markCutouts(){
+    document.querySelectorAll('img.ph, img.cph').forEach(img => {
+      const probe = new Image();
+      probe.crossOrigin = 'anonymous';
+      probe.onload = () => {
+        try{
+          const cw = Math.min(probe.naturalWidth, 60) || 1, ch = Math.min(probe.naturalHeight, 60) || 1;
+          const cv = document.createElement('canvas'); cv.width = cw; cv.height = ch;
+          const ctx = cv.getContext('2d'); ctx.drawImage(probe, 0, 0, cw, ch);
+          const d = ctx.getImageData(0, 0, cw, ch).data;
+          for(let i = 3; i < d.length; i += 4){ if(d[i] < 235){ img.classList.add('cutout'); break; } }
+        }catch(e){}
+      };
+      probe.src = img.src;
+    });
+  }
+  markCutouts();
+
+  const io = new IntersectionObserver(es => es.forEach(en => { if(en.isIntersecting) en.target.classList.add('in'); }), {threshold:0.06});
+  document.querySelectorAll('.station').forEach(s => io.observe(s));
+
+  /* ---------- canvas engine ---------- */
+  const world = document.getElementById('world');
+  const grid  = document.getElementById('grid');
+  const vp    = document.getElementById('viewport');
+  const zlvl  = document.getElementById('zlvl');
+
+  /* ---------- on-canvas info dialogs ---------- */
+  const modal = document.getElementById('modal');
+  const modalBody = document.getElementById('modalBody');
+  let modalOpen = false;
+  const IFRAME_PLACEHOLDER = `<div style="font-family:ui-monospace,monospace;height:100%;display:flex;flex-direction:column;gap:14px;align-items:center;justify-content:center;background:#0b0b0c;color:#f4f4f5;text-align:center;padding:24px"><div style="font-size:22px">&#9654;&nbsp; Vibe Design &amp; The Dynamic Medium</div><div style="opacity:.6;font-size:13px;max-width:46ch;line-height:1.6">Your live talk / slide deck embeds right here. Point the iframe at the demo URL when it&rsquo;s ready.</div></div>`;
+  const MODALS = {
+    'builder-shift':{kind:'content',tag:'Essay',meta:'April 2026 · ~6 min read',title:'The Builder Shift',
+      body:`<p>The design landscape is changing. This essay looks backward at how we ended up here &mdash; and asks whether our current positions as designers support what comes next.</p><p class="muted">Full reader view loads here &mdash; wire up the real essay content or URL.</p>`},
+    'vibe-design':{kind:'iframe',title:'Vibe Design & The Dynamic Medium',meta:'April 2026 · ~40 slides · interactive talk'},
+    'progress-app':{kind:'content',tag:'Project',meta:'PWA · rebuilt per model release',title:'Progress App',
+      body:`<p>A gamified mood-tracking PWA I rebuild against each new AI model release to see how the medium is changing &mdash; a living benchmark for vibe-designing real software.</p>`,link:'#'},
+    'controller':{kind:'content',tag:'Project',meta:'Web testbed',title:'Controller Input Playground',
+      body:`<p>A web testbed for gamepad controller mappings and tuning the feel of pointer interactions &mdash; dead-zones, acceleration curves, and edge cases.</p>`,link:'#'},
+  };
+  function openModal(id){
+    const m = MODALS[id]; if(!m) return;
+    modal.classList.toggle('iframe', m.kind === 'iframe');
+    if(m.kind === 'iframe'){
+      modalBody.className = 'modal-body iframe-body';
+      modalBody.innerHTML = `<div class="m-frame-head"><div class="ft">${m.title}</div><div class="fm">${m.meta}</div></div><iframe class="m-frame" srcdoc="${IFRAME_PLACEHOLDER.replace(/"/g,'&quot;')}"></iframe>`;
+    } else {
+      modalBody.className = 'modal-body';
+      modalBody.innerHTML = `${m.tag?`<span class="m-tag">${m.tag}</span>`:''}<div class="m-meta">${m.meta||''}</div><div class="m-title">${m.title}</div><div class="m-text">${m.body}</div>${m.link?`<a class="m-link" href="${m.link}" target="_blank" rel="noopener">View on GitHub &#8599;</a>`:''}`;
+    }
+    modal.classList.add('open'); modalOpen = true;
+  }
+  function closeModal(){ modal.classList.remove('open'); modalOpen = false; modalBody.innerHTML = ''; }
+  modal.querySelectorAll('[data-close]').forEach(el => el.addEventListener('click', closeModal));
+  document.querySelectorAll('[data-modal]').forEach(el => el.addEventListener('click', () => openModal(el.dataset.modal)));
+
+  const regions = {home:{x:0,y:0}, south:{x:0,y:950}, west:{x:-1600,y:0}, east:{x:START + stations[0]._w/2, y:300}};
+  const xboxFocus = {x:xboxX + stations[stations.length-1]._w/2, y:300};
+  const ZMIN = 0.18, ZMAX = 2.6;
+  const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+
+  let panX = innerWidth/2, panY = innerHeight/2, zoom = 1;
+
+  function apply(){
+    world.style.transform = `translate(${panX}px,${panY}px) scale(${zoom})`;
+    grid.style.backgroundSize = `${32*zoom}px ${32*zoom}px`;
+    grid.style.backgroundPosition = `${panX}px ${panY}px`;
+    zlvl.textContent = Math.round(zoom*100) + '%';
+    const cx = (innerWidth/2 - panX)/zoom, cy = (innerHeight/2 - panY)/zoom;
+    let best='free', bd=1e9;
+    for(const k in regions){ const o=regions[k]; const d=Math.hypot(cx-o.x, cy-o.y); if(d<bd){bd=d;best=k;} }
+    document.body.dataset.pos = bd < 820 ? best : 'free';
+    document.body.classList.toggle('in-case', cy > 950 && cx > xboxX - 1400);
+  }
+  function zoomAt(sx, sy, nz){
+    nz = clamp(nz, ZMIN, ZMAX);
+    const wx = (sx - panX)/zoom, wy = (sy - panY)/zoom;
+    zoom = nz; panX = sx - wx*zoom; panY = sy - wy*zoom; apply();
+  }
+
+  let tweenRAF = null;
+  function cancelTween(){ if(tweenRAF) cancelAnimationFrame(tweenRAF); tweenRAF = null; }
+  function tweenToPoint(ox, oy, tz=1, dur=760){
+    cancelTween(); stopInertia();
+    const tx = innerWidth/2 - ox*tz, ty = innerHeight/2 - oy*tz;
+    const sx=panX, sy=panY, sz=zoom, t0=performance.now();
+    const ease = t => t<.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2;
+    const step = now => {
+      const k = Math.min(1,(now-t0)/dur), e = ease(k);
+      panX = sx+(tx-sx)*e; panY = sy+(ty-sy)*e; zoom = sz+(tz-sz)*e; apply();
+      if(k<1) tweenRAF = requestAnimationFrame(step); else tweenRAF = null;
+    };
+    tweenRAF = requestAnimationFrame(step);
+  }
+  function focus(r){ const o = regions[r] || regions.home; tweenToPoint(o.x, o.y, 1); }
+
+  let inertiaRAF = null, vel = {x:0,y:0};
+  function stopInertia(){ if(inertiaRAF) cancelAnimationFrame(inertiaRAF); inertiaRAF = null; vel = {x:0,y:0}; }
+  function startInertia(){
+    if(Math.hypot(vel.x,vel.y) < 0.8) return;
+    const step = () => {
+      panX += vel.x; panY += vel.y; vel.x *= 0.92; vel.y *= 0.92; apply();
+      if(Math.hypot(vel.x,vel.y) > 0.4) inertiaRAF = requestAnimationFrame(step); else inertiaRAF = null;
+    };
+    inertiaRAF = requestAnimationFrame(step);
+  }
+
+  const pts = new Map();
+  let mode = null, panStart = null, pinchStart = null, last = null, lastT = 0;
+  const dist = (a,b)=>Math.hypot(a.x-b.x, a.y-b.y);
+  const mid  = (a,b)=>({x:(a.x+b.x)/2, y:(a.y+b.y)/2});
+
+  vp.addEventListener('pointerdown', e => {
+    if(e.pointerType==='mouse' && e.button!==0) return;
+    if(modalOpen) return;
+    stopInertia(); cancelTween();
+    pts.set(e.pointerId, {x:e.clientX, y:e.clientY});
+    if(pts.size === 1){
+      mode = 'maybe'; panStart = {x:e.clientX, y:e.clientY, panX, panY};
+      last = {x:e.clientX, y:e.clientY}; lastT = performance.now(); vel = {x:0,y:0};
+    } else if(pts.size === 2){
+      const a = [...pts.values()]; mode = 'pinch'; pinchStart = {d:dist(a[0],a[1]), z:zoom};
+    }
+  });
+  window.addEventListener('pointermove', e => {
+    if(!pts.has(e.pointerId)) return;
+    pts.set(e.pointerId, {x:e.clientX, y:e.clientY});
+    if(mode === 'pinch'){
+      const a = [...pts.values()]; const m = mid(a[0],a[1]);
+      zoomAt(m.x, m.y, pinchStart.z * dist(a[0],a[1]) / pinchStart.d); return;
+    }
+    if(mode === 'maybe' || mode === 'pan'){
+      const dx = e.clientX - panStart.x, dy = e.clientY - panStart.y;
+      if(mode === 'maybe'){
+        if(Math.hypot(dx,dy) < 4) return;
+        mode = 'pan'; vp.classList.add('grabbing');
+        try{ vp.setPointerCapture(e.pointerId); }catch(_){}
+      }
+      panX = panStart.panX + dx; panY = panStart.panY + dy;
+      const now = performance.now(), dt = Math.max(8, now - lastT);
+      vel.x = (e.clientX - last.x) / dt * 16; vel.y = (e.clientY - last.y) / dt * 16;
+      last = {x:e.clientX, y:e.clientY}; lastT = now; apply();
+    }
+  });
+  function endPointer(e){
+    if(!pts.has(e.pointerId)) return;
+    pts.delete(e.pointerId);
+    if(mode === 'pan'){ vp.classList.remove('grabbing'); startInertia(); }
+    if(pts.size === 1){
+      const p = [...pts.values()][0];
+      mode = 'maybe'; panStart = {x:p.x, y:p.y, panX, panY}; last = {x:p.x, y:p.y}; lastT = performance.now();
+    } else if(pts.size === 0){ mode = null; }
+  }
+  window.addEventListener('pointerup', endPointer);
+  window.addEventListener('pointercancel', endPointer);
+
+  vp.addEventListener('wheel', e => {
+    if(modalOpen) return;
+    e.preventDefault(); stopInertia(); cancelTween();
+    zoomAt(e.clientX, e.clientY, zoom * Math.exp(-e.deltaY * 0.0015));
+  }, {passive:false});
+
+  document.querySelectorAll('[data-go]').forEach(el =>
+    el.addEventListener('click', () => focus(el.dataset.go)));
+  document.getElementById('parentBubble').onclick = () => tweenToPoint(xboxFocus.x, xboxFocus.y, 1);
+
+  const zc = () => ({x:innerWidth/2, y:innerHeight/2});
+  document.getElementById('zin').onclick    = () => { const c=zc(); zoomAt(c.x,c.y, zoom*1.2); };
+  document.getElementById('zout').onclick   = () => { const c=zc(); zoomAt(c.x,c.y, zoom/1.2); };
+  document.getElementById('zreset').onclick = () => focus('home');
+
+  const tb = document.getElementById('themebtn');
+  tb.onclick = () => {
+    const dark = document.body.getAttribute('data-theme') === 'dark';
+    document.body.setAttribute('data-theme', dark ? 'light' : 'dark');
+    tb.textContent = dark ? 'DARK' : 'LIGHT';
+  };
+
+  window.addEventListener('keydown', e => {
+    if(modalOpen){ if(e.key==='Escape') closeModal(); return; }
+    if(e.key==='Escape' || e.key==='Home'){ focus('home'); }
+    else if(e.key==='ArrowLeft'){ focus('west'); }
+    else if(e.key==='ArrowRight'){ focus('east'); }
+    else if(e.key==='ArrowDown'){ focus('south'); }
+    else if(e.key==='ArrowUp'){ focus('home'); }
+    else if(e.key==='+' || e.key==='='){ const c=zc(); zoomAt(c.x,c.y, zoom*1.2); }
+    else if(e.key==='-' || e.key==='_'){ const c=zc(); zoomAt(c.x,c.y, zoom/1.2); }
+    else if(e.key==='0'){ focus('home'); }
+  });
+
+  addEventListener('resize', apply);
+  apply();
+</script>
 </body>
 </html>
