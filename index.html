@@ -6,15 +6,15 @@
 <title>Nick McVey — Spatial Portfolio (Prototype)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root, [data-theme="light"]{
     --bg:#FFFFFF; --ink:#0B0B0C; --ink-2:#3A3A3C; --muted:#8A8A8E;
     --rule:#E3E3E5; --dot:rgba(0,0,0,.12); --accent:#2D5BFF; --on-accent:#FFFFFF;
   }
   [data-theme="dark"]{
-    --bg:#0B0B0C; --ink:#F4F4F5; --ink-2:#C4C4C8; --muted:#76767C;
-    --rule:#26262A; --dot:rgba(255,255,255,.14); --accent:#5B7CFF; --on-accent:#0B0B0C;
+    --bg:#1A140E; --ink:#F2E8D8; --ink-2:#C9BCA8; --muted:#8C7D69;
+    --rule:#2E2418; --dot:rgba(255,238,214,.12); --accent:#FF6B3D; --on-accent:#1A140E;
   }
   :root{--font-mono:'Geist Mono', ui-monospace, 'Cascadia Mono', Menlo, Consolas, monospace; --ease:cubic-bezier(.76,0,.24,1);}
   *{box-sizing:border-box;margin:0;padding:0;}
@@ -27,18 +27,21 @@
   .grid{position:fixed;inset:0;z-index:0;pointer-events:none;
     background-image:radial-gradient(circle, var(--dot) 1.05px, transparent 1.25px);
     background-size:32px 32px;background-position:0 0;}
+  .underglow{position:fixed;left:0;right:0;bottom:0;height:44vh;z-index:2;pointer-events:none;opacity:0;transition:opacity .6s ease;
+    background:radial-gradient(130% 100% at 50% 116%, rgba(255,107,61,.20), rgba(255,107,61,0) 66%);}
+  [data-theme="dark"] .underglow{opacity:1;}
 
   .viewport{position:fixed;inset:0;overflow:hidden;z-index:1;cursor:grab;touch-action:none;}
   .viewport,.viewport .world,.panel,.wrap,.ghost,h1,h2,.lead,.station,.st-text,.cs-block{cursor:grab;}
   .viewport.grabbing,.viewport.grabbing *{cursor:grabbing !important;}
-  a,.tile,.bub,.zoom button,.themebtn,.wcard,.wlink{cursor:pointer;}
+  a,.tile,.arttile,.bub,.zoom button,.themebtn,.wcard,.wlink,.tour-btn,.jcard{cursor:pointer;}
   .viewport.grabbing{cursor:grabbing;}
-  .world{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform;}
+  .world{position:absolute;left:0;top:0;transform-origin:0 0;}
 
   .panel{position:absolute;width:1180px;transform:translate(-50%,-50%);}
   #home{left:0;top:0;}
   #south{left:0;top:560px;transform:translate(-50%,0);}
-  #west{left:-1600px;top:0;}
+  #west{left:-980px;top:0;transform:translate(-50%,-50%);width:460px;}
 
   .ghost{position:absolute;font-size:560px;font-weight:600;line-height:1;color:var(--ink);
     opacity:.035;pointer-events:none;letter-spacing:-.04em;z-index:0;}
@@ -80,13 +83,38 @@
   .note{font-size:12px;color:var(--muted);margin-top:20px;}
 
   /* art gallery (west) */
-  .artgrid{display:flex;gap:16px;margin-top:34px;}
-  .artcol{display:flex;flex-direction:column;gap:16px;width:300px;}
-  .artimg{width:100%;display:block;object-fit:cover;border-radius:12px;pointer-events:none;-webkit-user-drag:none;
-    box-shadow:0 14px 26px rgba(0,0,0,.16);}
-  .artarchive{border:1px solid var(--rule);border-radius:12px;height:280px;display:flex;flex-direction:column;
-    align-items:center;justify-content:center;gap:8px;background:rgba(127,127,127,.08);}
-  .artarchive b{font-size:14px;color:var(--ink);font-weight:600;} .artarchive span{font-size:12px;color:var(--muted);}
+  #artfield{position:absolute;left:0;top:0;}
+  .artwall{position:absolute;left:-3120px;top:0;width:1840px;display:grid;grid-template-columns:repeat(8,210px);grid-auto-rows:210px;grid-auto-flow:dense;gap:20px;transform:translateY(-50%);}
+  .arttile{position:relative;border:0;border-radius:12px;background:transparent;box-shadow:0 12px 28px rgba(0,0,0,.18);overflow:hidden;padding:0;cursor:zoom-in;
+    transform:rotate(var(--tilt,0deg));transition:transform .28s var(--ease),box-shadow .28s var(--ease),filter .28s var(--ease);}
+  .arttile.wide{grid-column:span 2;}
+  .arttile.tall{grid-row:span 2;}
+  .arttile.large{grid-column:span 2;grid-row:span 2;}
+  .arttile.panorama{grid-column:span 3;grid-row:span 2;}
+  .artimg{position:relative;width:100%;height:100%;object-fit:cover;display:block;-webkit-user-drag:none;cursor:zoom-in;
+    image-rendering:auto;backface-visibility:hidden;transform:translateZ(0);transition:transform .28s var(--ease),filter .28s var(--ease);}
+  .arttile:hover{z-index:5;}
+  .arttile:hover{transform:rotate(0deg) translateY(-8px) scale(1.08);box-shadow:0 28px 62px rgba(0,0,0,.34);filter:saturate(1.08);}
+  .arttile:hover .artimg{transform:scale(1.06);}
+
+  /* art lightbox (shadowbox) */
+  #artlb{position:fixed;inset:0;z-index:250;display:flex;align-items:center;justify-content:center;
+    background:rgba(8,8,10,0);backdrop-filter:blur(0);padding:48px;cursor:zoom-out;
+    opacity:0;pointer-events:none;transition:opacity .28s ease,background .28s ease,backdrop-filter .28s ease;}
+  #artlb.open{opacity:1;pointer-events:auto;background:rgba(8,8,10,.82);backdrop-filter:blur(10px);}
+  #artlb img{max-width:92vw;max-height:88vh;border-radius:10px;box-shadow:0 40px 120px rgba(0,0,0,.6);
+    cursor:default;-webkit-user-drag:none;will-change:transform,opacity;transition:transform .42s var(--ease),opacity .24s ease;}
+  #artlb img.zooming{position:fixed;max-width:none;max-height:none;object-fit:cover;}
+  #artlb .alb-x{position:fixed;top:20px;right:24px;width:40px;height:40px;border-radius:50%;border:1px solid var(--rule);
+    background:var(--bg);color:var(--ink);font-size:22px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s;}
+  #artlb .alb-x:hover{background:var(--accent);color:var(--on-accent);border-color:var(--accent);}
+  #artlb .alb-nav{position:fixed;top:50%;transform:translateY(-50%);width:52px;height:52px;border-radius:50%;border:1px solid var(--rule);
+    background:rgba(20,20,22,.7);color:#fff;font-size:24px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s;}
+  #artlb .alb-nav:hover{background:var(--accent);color:var(--on-accent);border-color:var(--accent);}
+  #artlb .alb-prev{left:24px;} #artlb .alb-next{right:24px;}
+  #artlb .alb-count{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);font-size:11px;letter-spacing:.14em;
+    text-transform:uppercase;color:rgba(255,255,255,.6);font-family:ui-monospace,monospace;}
+  @media (max-width:600px){ #artlb{padding:16px;} #artlb .alb-nav{width:44px;height:44px;} #artlb .alb-prev{left:10px;} #artlb .alb-next{right:10px;} }
 
   /* south: thinking + life */
   .slabel{font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin:54px 0 22px;}
@@ -101,6 +129,21 @@
   .photo img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;-webkit-user-drag:none;}
   .photo.ph-empty{display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);font-size:12px;padding:16px;line-height:1.7;}
   .photo .cap{position:absolute;left:0;right:0;bottom:0;padding:10px 14px;font-size:12px;color:#fff;background:linear-gradient(transparent,rgba(0,0,0,.55));}
+  .photos-taped{display:flex;gap:38px;margin-top:36px;flex-wrap:wrap;align-items:flex-start;}
+  .tphoto{margin:0;display:flex;flex-direction:column;align-items:center;gap:14px;
+    transform:rotate(var(--r,-2deg));transition:transform .28s var(--ease);}
+  .tphoto:hover{transform:rotate(0deg) translateY(-8px) scale(1.02);z-index:4;}
+  .tframe{position:relative;background:#fff;padding:6px;border-radius:1px;
+    box-shadow:0 12px 26px rgba(0,0,0,.20),0 2px 5px rgba(0,0,0,.12);transition:box-shadow .28s var(--ease);}
+  .tframe::before{content:"";position:absolute;top:-12px;left:50%;width:104px;height:26px;
+    transform:translateX(-50%) rotate(var(--tr,-4deg));
+    background:linear-gradient(180deg,rgba(216,203,162,.6),rgba(216,203,162,.4));
+    border:1px solid rgba(180,168,130,.32);box-shadow:0 1px 3px rgba(0,0,0,.12);}
+  .tphoto:hover .tframe{box-shadow:0 26px 54px rgba(0,0,0,.30);}
+  .tframe img{display:block;height:250px;width:auto;
+    pointer-events:none;-webkit-user-drag:none;}
+  .tphoto .pcap{font-family:'Caveat',cursive;font-weight:600;font-size:23px;color:var(--ink);
+    text-align:center;line-height:1.05;}
   .wcards{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:6px;}
   .wcard{border:1px solid var(--rule);border-radius:8px;padding:24px;background:var(--bg);box-shadow:0 6px 20px rgba(0,0,0,.05);cursor:pointer;transition:transform .2s var(--ease),border-color .2s,box-shadow .2s;}
   .wcard:hover{transform:translateY(-3px);border-color:var(--accent);box-shadow:0 14px 34px rgba(0,0,0,.10);}
@@ -110,28 +153,115 @@
   .wcard p{font-size:14px;line-height:1.7;color:var(--ink-2);margin-top:10px;}
   .wcard .wlink{color:var(--accent);font-size:13px;font-weight:600;margin-top:14px;display:inline-block;}
 
+  /* NORTH — game jams (3D cartridge shelf) */
+  #north{left:0;top:-1680px;transform:translate(-50%,0);width:1040px;}
+
+  /* the shelf of cartridges (read from the top as you climb up) */
+  .shelf{display:flex;flex-wrap:wrap;justify-content:center;gap:74px 56px;perspective:1600px;
+    max-width:1000px;margin:0 auto;padding:30px 0 10px;}
+  .cart{display:flex;flex-direction:column;align-items:center;gap:22px;width:188px;}
+  .cart-stage{position:relative;width:188px;height:236px;transform-style:preserve-3d;}
+  .cart-bob{position:absolute;inset:0;transform-style:preserve-3d;animation:cbob 5s ease-in-out infinite;will-change:transform;}
+  .cart-3d{position:absolute;inset:0;transform-style:preserve-3d;
+    transform:rotateX(7deg) rotateY(-24deg);transition:transform .6s var(--ease);}
+  .cart:hover .cart-3d{transform:rotateX(5deg) rotateY(-14deg) scale(1.06);}
+  @keyframes cbob{0%,100%{transform:translateY(0)}50%{transform:translateY(-15px)}}
+
+  .face{position:absolute;top:50%;left:50%;box-sizing:border-box;backface-visibility:hidden;}
+  .f-front,.f-back{width:188px;height:236px;}
+  .f-left,.f-right{width:38px;height:236px;}
+  .f-top,.f-bottom{width:188px;height:38px;}
+  .f-front {transform:translate(-50%,-50%) translateZ(19px);}
+  .f-back  {transform:translate(-50%,-50%) rotateY(180deg) translateZ(19px);}
+  .f-right {transform:translate(-50%,-50%) rotateY(90deg)  translateZ(94px);}
+  .f-left  {transform:translate(-50%,-50%) rotateY(-90deg) translateZ(94px);}
+  .f-top   {transform:translate(-50%,-50%) rotateX(90deg)  translateZ(118px);}
+  .f-bottom{transform:translate(-50%,-50%) rotateX(-90deg) translateZ(118px);}
+
+  /* cartridge plastic body + cover-art label */
+  .f-front{background:#1b1b1f;border-radius:12px 12px 6px 6px;padding:14px 13px 0;
+    box-shadow:inset 0 2px 0 rgba(255,255,255,.10), inset 0 -10px 22px rgba(0,0,0,.5);}
+  .f-front .label{width:100%;height:152px;border-radius:6px;overflow:hidden;border:2px solid rgba(255,255,255,.10);
+    box-shadow:inset 0 2px 10px rgba(0,0,0,.55);background:#000;}
+  .f-front .label img{width:100%;height:100%;object-fit:cover;display:block;-webkit-user-drag:none;}
+  .f-front .grip{position:absolute;left:13px;right:13px;bottom:14px;height:44px;border-radius:4px;
+    background:repeating-linear-gradient(90deg,#0e0e10 0 6px,#26262b 6px 12px);box-shadow:inset 0 1px 0 rgba(255,255,255,.06);}
+  .f-back{background:#16161a;border-radius:12px 12px 6px 6px;
+    box-shadow:inset 0 2px 0 rgba(255,255,255,.05), inset 0 -8px 20px rgba(0,0,0,.55);}
+  .f-right,.f-left{background:#202024;
+    background-image:repeating-linear-gradient(180deg,rgba(0,0,0,.35) 0 3px,rgba(255,255,255,.03) 3px 8px);}
+  .f-left{filter:brightness(.82);}
+  .f-right{filter:brightness(.92);}
+  .f-top{background:#2a2a30;border-radius:8px 8px 0 0;}
+  .f-bottom{background:#0c0c0e;}
+  [data-theme="dark"] .f-front{background:#231a12;} [data-theme="dark"] .f-back{background:#1d150e;}
+  [data-theme="dark"] .f-right,[data-theme="dark"] .f-left{background:#2a2016;}
+
+  /* soft contact shadow under each cart */
+  .cart-stage::after{content:"";position:absolute;left:50%;bottom:-34px;width:150px;height:30px;
+    transform:translateX(-50%);border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,.34),transparent);
+    filter:blur(2px);animation:cshadow 5s ease-in-out infinite;}
+  [data-theme="dark"] .cart-stage::after{background:radial-gradient(closest-side,rgba(0,0,0,.55),transparent);}
+  @keyframes cshadow{0%,100%{opacity:.85;transform:translateX(-50%) scale(1)}50%{opacity:.5;transform:translateX(-50%) scale(.82)}}
+
+  .cart-title{font-size:14px;font-weight:600;color:var(--ink);text-align:center;line-height:1.2;letter-spacing:-.01em;}
+
+  /* intro block sits at the bottom — the first thing you meet climbing up */
+  .jam-intro{max-width:660px;margin:104px auto 0;text-align:center;}
+  .jam-eyebrow{margin-bottom:22px;}
+  .jam-intro h2{text-align:center;}
+  .jam-intro .lead{margin-top:18px;color:var(--ink-2);text-align:center;}
+
+  .m-cover{width:100%;border-radius:12px;margin-bottom:26px;display:block;border:1px solid var(--rule);background:#0b0b0c;}
+  .m-gallery{display:flex;flex-direction:column;gap:12px;margin-bottom:26px;}
+  .m-gallery.multi{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .m-shot{width:100%;border-radius:12px;display:block;border:1px solid var(--rule);background:#0b0b0c;object-fit:cover;}
+  .m-gallery.multi .m-shot:first-child{grid-column:1 / -1;aspect-ratio:16/9;}
+
   /* TIMELINE + CASE STUDY share the thread */
   #timeline{position:absolute;left:0;top:0;}
-  .spine{position:absolute;height:2px;top:0;left:0;
-    background:repeating-linear-gradient(90deg, var(--accent) 0 7px, transparent 7px 19px);opacity:.85;}
-  .tl-cap{position:absolute;top:-7px;width:15px;height:15px;border-radius:50%;background:var(--accent);
-    box-shadow:0 0 0 4px var(--bg);transform:translateX(-50%);}
-  .vspine{position:absolute;width:2px;top:0;left:0;
-    background:repeating-linear-gradient(180deg, var(--accent) 0 7px, transparent 7px 19px);opacity:.85;}
-  .casescene{width:1500px;}
-  .casescene .cs-wrap{padding-left:64px;}
+  .spine,.vspine{position:absolute;top:0;left:0;overflow:visible;z-index:0;}
+  .spine line,.vspine line,.vbend path{fill:none;stroke:var(--accent);stroke-width:2;
+    stroke-dasharray:8 16;stroke-linecap:round;opacity:.9;}
+  .tl-cap{position:absolute;top:-9px;width:18px;height:18px;border-radius:50%;background:var(--bg);
+    border:3px solid var(--accent);box-sizing:border-box;transform:translateX(-50%);z-index:1;}
+  .vbend{position:absolute;line-height:0;pointer-events:none;z-index:0;}
+  .caseorigin .st-text{padding-left:78px;}
+  .casescene{width:1240px;}
+  .casescene .cs-wrap{padding-left:96px;zoom:.82;}
   .casescene .cs-block{padding-top:0;}
-  .downcue{position:absolute;font-size:13px;font-weight:600;color:var(--accent);letter-spacing:.05em;}
-  .station{position:absolute;top:0;display:flex;flex-direction:column;
+  .downcue{position:absolute;font-size:15px;font-weight:600;color:var(--accent);letter-spacing:.04em;white-space:nowrap;}
+  .xbox-emblem{position:absolute;display:flex;align-items:center;justify-content:center;border-radius:50%;
+    background:radial-gradient(circle at 34% 28%, rgba(255,255,255,.9), rgba(255,255,255,.24) 24%, rgba(16,124,16,.9) 45%, #107c10 72%);
+    box-shadow:0 24px 56px rgba(0,0,0,.26), inset 0 0 0 2px rgba(255,255,255,.22);}
+  .xbox-emblem:before,.xbox-emblem:after{content:'';position:absolute;width:62%;height:15%;border-radius:999px;background:rgba(255,255,255,.94);
+    box-shadow:0 0 18px rgba(255,255,255,.28);}
+  .xbox-emblem:before{transform:rotate(43deg);}
+  .xbox-emblem:after{transform:rotate(-43deg);}
+  [data-theme="dark"] .xbox-emblem{background:radial-gradient(circle at 34% 28%, rgba(247,238,222,.72), rgba(247,238,222,.18) 24%, rgba(255,107,61,.82) 46%, #8c2f1b 76%);}
+  .station{position:absolute;top:0;display:flex;flex-direction:column;z-index:1;
     opacity:0;transform:translateY(22px);transition:opacity .6s var(--ease), transform .75s var(--ease);}
   .station.in{opacity:1;transform:none;}
-  .st-node{position:absolute;top:-6px;left:-6px;width:12px;height:12px;border-radius:50%;
-    background:var(--accent);box-shadow:0 0 0 4px var(--bg);}
+  .st-node{position:absolute;top:-8px;left:-8px;width:16px;height:16px;border-radius:50%;
+    background:var(--bg);border:3px solid var(--accent);box-sizing:border-box;z-index:1;}
   .st-text{padding-top:34px;max-width:600px;margin-bottom:44px;}
   .st-year{font-size:60px;font-weight:600;color:var(--accent);letter-spacing:-.03em;line-height:1;}
   .st-title{font-size:29px;font-weight:600;margin-top:12px;color:var(--ink);}
   .st-blurb{font-size:16px;line-height:1.7;color:var(--ink-2);margin-top:14px;}
   .st-cluster{position:relative;}
+  .st-slot{position:absolute;display:flex;align-items:center;justify-content:center;text-align:center;
+    border:2px dashed var(--rule);border-radius:12px;color:var(--muted);font-size:13px;letter-spacing:.04em;
+    background:rgba(127,127,127,.05);}
+  .nda-card{position:absolute;overflow:hidden;border-radius:12px;border:1px solid var(--rule);
+    background:repeating-linear-gradient(45deg, rgba(127,127,127,.05) 0 16px, rgba(127,127,127,.12) 16px 32px);
+    display:flex;align-items:flex-start;justify-content:center;padding-top:24px;box-shadow:0 16px 34px rgba(0,0,0,.16);}
+  .nda-body{font-size:25px;font-weight:600;color:var(--ink-2);letter-spacing:.04em;opacity:.92;}
+  .nda-tape{position:absolute;left:-12%;width:124%;top:62%;
+    transform:translateY(-50%) rotate(-9deg);
+    background:#E7B73C;color:#241a06;font-size:12px;font-weight:700;letter-spacing:.22em;
+    padding:8px 0;text-align:center;white-space:nowrap;overflow:hidden;
+    border-top:2px solid rgba(0,0,0,.22);border-bottom:2px solid rgba(0,0,0,.22);
+    box-shadow:0 4px 14px rgba(0,0,0,.25);}
   .ph{position:absolute;display:block;object-fit:cover;object-position:center;transform-origin:0 0;border-radius:8px;
     pointer-events:none;-webkit-user-drag:none;filter:drop-shadow(0 14px 24px rgba(0,0,0,.26));}
   .ph.cutout{filter:none;border-radius:0;}
@@ -165,16 +295,63 @@
   .cs-bignum-lg .box{background:var(--accent);color:var(--on-accent);padding:36px 46px;border-radius:18px;}
   .cs-bignum-lg .box b{font-size:90px;font-weight:600;display:block;letter-spacing:-.04em;line-height:1;}
   .cs-bignum-lg .box span{font-size:14px;letter-spacing:.08em;margin-top:12px;display:block;}
+  /* publishing case study components */
+  .cs-credits{display:flex;gap:64px;margin-top:46px;}
+  .cs-credits div{font-size:16px;line-height:1.85;color:var(--ink-2);}
+  .cs-credits span{display:block;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+  .cs-list{list-style:none;padding:0;margin:30px 0 0;}
+  .cs-list li{position:relative;padding-left:26px;font-size:18px;line-height:2.05;color:var(--ink-2);}
+  .cs-list li::before{content:"";position:absolute;left:0;top:15px;width:8px;height:8px;border-radius:50%;background:var(--accent);}
+  .cs-quotes{display:flex;gap:40px;margin-top:48px;align-items:flex-start;}
+  .cs-quotes blockquote{flex:0 0 420px;margin:0;font-size:30px;font-weight:600;line-height:1.3;letter-spacing:-.02em;color:var(--ink);}
+  .cs-quotes blockquote cite{display:block;margin-top:18px;font-size:15px;font-weight:400;font-style:normal;color:var(--muted);}
+  .cs-qnote{flex:1 1 0;font-size:18px;line-height:1.7;color:var(--ink-2);border-left:2px solid var(--rule);padding-left:24px;}
+.cs-flags li{padding-left:0;display:flex;align-items:flex-start;gap:12px;}
+.cs-flags li::before{display:none;}
+.cs-flags li svg{flex:0 0 auto;margin-top:9px;}
+.cs-eyebrow-lg{font-size:16px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);}
+.cs-hero-quote{margin:20px 0 0;font-size:48px;font-weight:600;line-height:1.2;letter-spacing:-.02em;color:var(--ink);max-width:1040px;}
+.cs-hero-quote cite{display:block;margin-top:22px;font-size:16px;font-weight:400;font-style:normal;color:var(--muted);}
+.cs-points{display:flex;gap:24px;margin-top:50px;}
+.cs-point{flex:1 1 0;border:1px solid var(--rule);border-radius:16px;padding:28px 26px;background:var(--bg);}
+.cs-point-n{font-size:14px;font-weight:600;letter-spacing:.1em;color:var(--accent);}
+.cs-point-h{font-size:26px;font-weight:600;letter-spacing:-.02em;color:var(--ink);margin-top:14px;}
+.cs-point-t{font-size:16px;line-height:1.7;color:var(--ink-2);margin-top:12px;}
+  .cs-tracks{display:flex;gap:56px;margin-top:52px;}
+  .cs-cols2{display:flex;gap:90px;}
+  .cs-track{flex:1 1 0;max-width:620px;}
+  .cs-h-md{font-size:30px;font-weight:600;letter-spacing:-.02em;color:var(--ink);}
+  .cs-sub-md{font-size:18px;line-height:1.7;color:var(--ink-2);margin-top:16px;max-width:560px;}
+  .cs-cta{margin-top:44px;display:inline-flex;align-items:center;gap:6px;font:inherit;font-size:18px;font-weight:600;
+    color:var(--on-accent);background:var(--accent);border:none;border-radius:999px;padding:16px 30px;cursor:pointer;
+    box-shadow:0 10px 30px rgba(0,0,0,.16);transition:transform .18s var(--ease),box-shadow .18s var(--ease);pointer-events:auto;}
+  .cs-cta:hover{transform:translateY(-2px);box-shadow:0 16px 38px rgba(0,0,0,.22);}
 
   /* overlays */
   .brand{position:fixed;top:24px;left:28px;z-index:60;display:flex;align-items:center;gap:10px;font-size:13px;}
   .brand .b{width:9px;height:9px;border-radius:50%;background:var(--accent);}
-  .brand b{font-weight:600;} .brand span{color:var(--muted);font-size:11px;letter-spacing:.1em;}
+  .brand b{font-weight:600;} .brand a{color:var(--muted);font-size:12px;letter-spacing:.02em;text-decoration:none;transition:color .2s;} .brand a:hover{color:var(--accent);}
 
-  .themebtn{position:fixed;top:24px;right:28px;z-index:60;font-family:inherit;font-size:11px;letter-spacing:.12em;
-    padding:9px 13px;border:1px solid var(--rule);border-radius:7px;background:transparent;color:var(--ink);transition:.2s;}
-  .themebtn:hover{border-color:var(--accent);color:var(--accent);}
+  .themebtn{position:fixed;top:24px;right:28px;z-index:60;font-family:inherit;font-size:11px;letter-spacing:.12em;font-weight:600;
+    padding:10px 16px;border:0;border-radius:8px;background:var(--ink);color:var(--bg);cursor:pointer;transition:.2s;}
+  .themebtn:hover{background:var(--accent);color:#fff;}
 
+  .hinttoast{position:fixed;left:50%;bottom:92px;z-index:70;transform:translateX(-50%) translateY(10px);
+    background:var(--ink);color:var(--bg);font-size:13px;letter-spacing:.01em;padding:11px 16px 11px 18px;border-radius:999px;
+    display:flex;align-items:center;gap:12px;box-shadow:0 14px 38px rgba(0,0,0,.30);opacity:0;pointer-events:none;
+    transition:opacity .45s var(--ease), transform .45s var(--ease);max-width:90vw;}
+  .hinttoast.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto;}
+  .hinttoast b{font-weight:600;}
+  .hinttoast .hx{cursor:pointer;opacity:.55;font-size:16px;line-height:1;}
+  .hinttoast .hx:hover{opacity:1;}
+
+  .ripple{position:absolute;z-index:5;pointer-events:none;left:0;top:0;}
+  .ripple .rring{position:absolute;left:-10px;top:-10px;width:20px;height:20px;border-radius:50%;
+    border:2px solid var(--accent);animation:rRing .64s cubic-bezier(.2,.7,.3,1) forwards;}
+  .ripple .rdot{position:absolute;left:-4px;top:-4px;width:8px;height:8px;border-radius:50%;
+    background:var(--accent);animation:rDot .52s ease-out forwards;}
+  @keyframes rRing{0%{transform:scale(.35);opacity:.8;}100%{transform:scale(3.3);opacity:0;}}
+  @keyframes rDot{0%{transform:scale(.5);opacity:.9;}55%{transform:scale(1.15);opacity:.65;}100%{transform:scale(.9);opacity:0;}}
   .hint{position:fixed;z-index:55;display:flex;font-size:15px;line-height:1.55;color:var(--ink);
     transition:opacity .4s var(--ease);pointer-events:none;}
   body:not([data-pos="home"]) .hint{opacity:0;}
@@ -207,12 +384,22 @@
   .modal-backdrop{position:absolute;inset:0;background:rgba(8,8,10,.55);backdrop-filter:blur(3px);animation:mfade .25s ease;}
   .modal-panel{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:var(--bg);color:var(--ink);
     border:1px solid var(--rule);border-radius:16px;box-shadow:0 50px 120px rgba(0,0,0,.45);
-    width:min(820px,92vw);max-height:86vh;overflow:auto;animation:mpop .28s var(--ease);}
+    width:min(820px,92vw);max-height:86vh;overflow:visible;animation:mpop .28s var(--ease);}
   .modal.iframe .modal-panel{width:min(1140px,95vw);height:84vh;overflow:hidden;display:flex;flex-direction:column;}
-  .modal-x{position:absolute;top:16px;right:18px;z-index:3;width:34px;height:34px;border-radius:50%;border:1px solid var(--rule);
-    background:var(--bg);color:var(--ink);font-size:20px;line-height:1;cursor:pointer;transition:.2s;}
-  .modal-x:hover{background:var(--accent);color:var(--on-accent);border-color:var(--accent);}
-  .modal-body{padding:44px;}
+  .modal-x{position:absolute;top:-18px;right:-18px;z-index:5;width:46px;height:46px;border-radius:50%;border:2px solid var(--bg);
+    background:var(--ink);color:var(--bg);font-size:24px;line-height:1;cursor:pointer;box-shadow:0 12px 30px rgba(0,0,0,.32);
+    transition:transform .22s var(--ease),background .2s;}
+  .modal-x:hover{background:var(--accent);color:var(--on-accent);transform:rotate(90deg) scale(1.08);}
+  .modal-body{padding:44px;max-height:86vh;overflow:auto;border-radius:16px;scrollbar-width:thin;scrollbar-color:var(--rule) transparent;}
+  .modal-body::-webkit-scrollbar{width:9px;}
+  .modal-body::-webkit-scrollbar-track{background:transparent;}
+  .modal-body::-webkit-scrollbar-thumb{background:var(--rule);border-radius:99px;border:3px solid var(--bg);}
+  .modal-body::-webkit-scrollbar-thumb:hover{background:var(--muted);}
+  .m-video{position:relative;width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;margin-bottom:18px;background:#000;}
+  .m-video iframe{position:absolute;inset:0;width:100%;height:100%;border:0;}
+  .m-video-actions{display:flex;justify-content:flex-end;margin:-6px 0 20px;}
+  .m-video-actions a{color:var(--accent);font-size:12px;font-weight:600;text-decoration:none;border-bottom:1px solid currentColor;padding-bottom:2px;}
+  .m-video-actions a:hover{color:var(--ink);}
   .modal.iframe .modal-body{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;padding:0;}
   .m-tag{display:inline-block;background:var(--accent);color:var(--on-accent);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:5px 11px;border-radius:999px;}
   .m-meta{font-size:12px;color:var(--muted);margin-top:18px;letter-spacing:.04em;}
@@ -226,136 +413,168 @@
   .m-frame{flex:1 1 auto;border:0;width:100%;background:#0b0b0c;}
   @keyframes mpop{from{opacity:0;transform:translate(-50%,-46%) scale(.97)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
   @keyframes mfade{from{opacity:0}to{opacity:1}}
+
+  /* home CTA + guided tour */
+  .home-cta{display:flex;flex-direction:column;align-items:center;gap:14px;margin-top:34px;}
+  .home-hint{font-size:13px;color:var(--muted);letter-spacing:.02em;}
+  .tour-btn{display:inline-flex;align-items:center;gap:11px;background:var(--ink);color:var(--bg);border:0;border-radius:999px;
+    padding:13px 24px;font-family:inherit;font-size:14px;cursor:pointer;transition:transform .2s var(--ease),background .2s;}
+  .tour-btn:hover{background:var(--accent);color:#fff;transform:translateY(-2px);}
+  .tour-btn .tdot{width:0;height:0;border-left:9px solid currentColor;border-top:5.5px solid transparent;border-bottom:5.5px solid transparent;}
+  .tour{position:fixed;left:50%;top:8px;transform:translate(-50%,-18px) scale(.98);z-index:120;width:min(460px,calc(100vw - 40px));
+    opacity:0;pointer-events:none;transition:opacity .36s var(--ease),transform .36s var(--ease);}
+  .tour.open{opacity:1;pointer-events:auto;transform:translate(-50%,0) scale(1);}
+  .tour-card{position:relative;display:grid;grid-template-columns:38px 1fr auto;gap:8px 12px;align-items:center;
+    background:var(--accent);color:var(--on-accent);border:0;
+    border-radius:0 0 18px 18px;padding:10px 12px 12px;box-shadow:0 10px 34px rgba(0,0,0,.22);
+    backdrop-filter:blur(12px) saturate(150%);}
+  [data-theme="dark"] .tour-card{box-shadow:0 22px 70px rgba(0,0,0,.52);}
+  .tour-ava-wrap{position:relative;grid-row:1 / span 2;width:38px;height:38px;align-self:center;}
+  .tour-avatar{width:38px;height:38px;border-radius:10px;object-fit:cover;object-position:50% 28%;background:#d8d3c8;display:block;
+    box-shadow:0 6px 16px rgba(0,0,0,.2);transform:rotate(-2deg);}
+  .tour-head{display:grid;grid-template-columns:1fr;gap:2px;align-items:center;min-width:0;}
+  .tour-headmeta{min-width:0;padding-top:0;}
+  .tour-exit{width:24px;height:24px;border:0;background:transparent;color:var(--on-accent);opacity:.72;
+    cursor:pointer;font-size:20px;font-family:inherit;line-height:1;transition:opacity .2s var(--ease),transform .2s var(--ease);}
+  .tour-exit:hover{opacity:1;transform:scale(1.06);}
+  .tour-title{font-size:14px;font-weight:700;letter-spacing:-.01em;margin-top:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .tour-fly{position:fixed;border-radius:50%;object-fit:cover;object-position:50% 28%;z-index:140;pointer-events:none;
+    box-shadow:0 18px 46px rgba(0,0,0,.38);transition:left .36s var(--ease),top .36s var(--ease),width .36s var(--ease),height .36s var(--ease),border-radius .36s var(--ease),transform .36s var(--ease),opacity .18s ease;}
+  .tour-blurb{display:none;}
+  .tour-voice{grid-column:2 / 4;display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;margin-top:0;}
+  .tour-time{font-size:10px;color:rgba(255,255,255,.78);font-variant-numeric:tabular-nums;min-width:34px;text-align:center;}
+  .tour-seek{width:100%;height:4px;appearance:none;-webkit-appearance:none;border-radius:999px;background:linear-gradient(90deg,var(--on-accent) 0%,var(--on-accent) var(--p,0%),rgba(255,255,255,.28) var(--p,0%),rgba(255,255,255,.28) 100%);cursor:pointer;}
+  .tour-seek::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:12px;height:12px;border-radius:50%;border:0;background:var(--on-accent);box-shadow:0 2px 8px rgba(0,0,0,.22);}
+  .tour-seek::-moz-range-thumb{width:12px;height:12px;border-radius:50%;border:0;background:var(--on-accent);box-shadow:0 2px 8px rgba(0,0,0,.22);}
+  .tour-nav{grid-column:2 / 3;display:flex;gap:10px;align-items:center;justify-content:center;}
+  .tour-nav button,.tour-mute{width:30px;height:30px;border-radius:50%;border:0;background:transparent;color:var(--on-accent);
+    cursor:pointer;font-family:inherit;transition:transform .16s var(--ease),background-color .16s var(--ease),opacity .16s var(--ease);display:flex;align-items:center;justify-content:center;}
+  .tour-nav .tour-play{width:36px;height:36px;background:var(--on-accent);color:var(--accent);}
+  .tour-nav button:disabled{opacity:.28;cursor:not-allowed;}
+  .tour-nav button:hover,.tour-mute:hover{transform:scale(1.06);background:rgba(255,255,255,.16);}
+  .tour-nav button:disabled:hover{transform:none;background:transparent;}
+  .tour-nav .tour-play:hover{background:var(--on-accent);}
+  .tour-icon{width:16px;height:16px;display:block;fill:currentColor;}
+  .tour-play .tour-icon{width:17px;height:17px;}
+  .tour-mute{grid-column:3 / 4;grid-row:2 / 3;justify-self:end;align-self:center;opacity:.82;}
+  body.touring .navrail{opacity:0;pointer-events:none;}
+  body.touring::before{content:"";position:fixed;inset:7px;z-index:112;pointer-events:none;border:5px solid var(--accent);
+    border-radius:22px;box-shadow:0 0 0 1px color-mix(in srgb,var(--accent) 45%,#fff), inset 0 0 0 1px color-mix(in srgb,var(--accent) 35%,transparent),
+    0 18px 80px rgba(0,0,0,.18);}
+  [data-theme="dark"] body.touring::before{box-shadow:0 0 0 1px var(--bg), inset 0 0 0 1px color-mix(in srgb,var(--accent) 50%,transparent),
+    0 18px 90px rgba(0,0,0,.45);}
+  body.touring #home .vr{opacity:0;transform:translateY(-42px) scale(.7);transition:.35s var(--ease);}
+  @media(max-width:760px){.tour{width:min(430px,calc(100vw - 24px))}.tour-card{grid-template-columns:34px 1fr auto;padding:10px;border-radius:0 0 16px 16px}.tour-ava-wrap,.tour-avatar{width:34px;height:34px;border-radius:9px}.tour-voice{grid-column:1 / -1}.tour-nav{grid-column:2 / 3}}
 </style>
 </head>
 <body data-theme="light" data-pos="home">
 
   <div class="grid" id="grid"></div>
+  <div class="underglow"></div>
 
-  <div class="brand"><span class="b"></span><b>NICK McVEY</b><span>CANVAS · PROTOTYPE</span></div>
+  <div class="brand"><b>NICK McVEY</b><a href="mailto:nsmcvey@gmail.com">nsmcvey@gmail.com</a></div>
   <button class="themebtn" id="themebtn">DARK</button>
 
   <div class="viewport" id="viewport">
     <div class="world" id="world">
 
+
       <section class="panel" id="home" data-pos="home">
         <div class="wrap home-col">
           <img class="vr" src="https://app.paper.design/file-assets/01KVRGREPQWV857GHSMNPTJE3H/5HBH9RDB8RFX19K97V9VAJ1HTA.png" alt="Nick wearing a VR headset" />
           <h1>Hi, I&rsquo;m <span class="ibox">Nick</span></h1>
-          <p class="lead">I&rsquo;m an artist, designer, and technologist, and I&rsquo;ve spent my career building things that help other people build. I believe creativity is one of the best parts of being human, and that great tools multiply it, putting real expressive power into more hands.</p>
+          <p class="lead">I&rsquo;m an artist at heart and a designer by trade. I&rsquo;ve spent my career working across game UI, SaaS products, developer platforms, and Xbox console experiences.</p>
+          <div class="home-cta">
+            <span class="home-hint">Click &amp; drag to move around the canvas</span>
+            <button class="tour-btn" id="tourBtn"><span class="tdot"></span> Take the guided tour</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" id="north" data-pos="north">
+        <div class="wrap">
+          <div class="shelf" id="northgrid"></div>
+          <div class="jam-intro">
+            <h2><span class="ibox">Game jams</span> &amp; side projects</h2>
+            <p class="lead">I never really left games &mdash; I just make them for fun now. Weekend jams with friends, an excuse to chase cutting-edge tools and bring what I learn back into my work. Each cartridge is a game we built &mdash; click one to pop it open.</p>
+          </div>
         </div>
       </section>
 
       <section class="panel" id="south" data-pos="south">
-        <div class="ghost">S</div>
         <div class="wrap">
-          <div class="eyebrow"><span class="kbox">SOUTH · LIFE &amp; THINKING</span></div>
-          <h2>Things I think about</h2>
-          <div class="about-row">
-            <div class="bio">
-              <p>I&rsquo;m a designer who likes to make the thing, not just describe it. I draw, I prototype in code, I build small games on the side. I think about design in my spare time.</p>
-              <p>I love systems thinking &mdash; how design and systems come together to solve real problems. Architecture and city planning pull at me for the same reason.</p>
-              <p>I came up through video games and mobile, did a stint in consulting and advertising, and ended up in tech designing system-level interfaces.</p>
-              <p style="color:var(--ink)">Outside of work: urban sketching, my dog, and my son Theo.</p>
-            </div>
-            <div class="facts">
-              <div class="fact"><div class="fl">now</div><div class="fv">designer · prototyper, seattle</div></div>
-              <div class="fact"><div class="fl">tools</div><div class="fv">figma, godot, web tech, after effects, adobe suite, maya, blender</div></div>
-              <div class="fact"><div class="fl">previously</div><div class="fv">consulting, advertising, mobile gaming</div></div>
-            </div>
+          <h2>Things I <span class="ibox">think</span> about</h2>
+          <div class="bio" style="max-width:680px;margin-top:26px;">
+            <p>These days I think a lot about how we build, and what kind of future that building points toward.</p>
+            <p>I&rsquo;m a designer drawn to technical workflows and ambiguous problems. I ask the bigger questions, get at what&rsquo;s really driving them, then ship products that matter.</p>
+            <p>Off the clock, I&rsquo;m a dad, a maker, a sketchbook person, working toward a future that&rsquo;s optimistic, useful, and human.</p>
           </div>
 
-          <div class="photos">
-            <div class="photo ph-empty">Theo on his Warthog &#127950;<br><span style="opacity:.65">drop the photo here</span></div>
-            <div class="photo ph-empty">Me + things I like to do<br><span style="opacity:.65">drop a photo here</span></div>
+          <div class="photos-taped">
+            <figure class="tphoto" style="--r:-3deg;--tr:-5deg">
+              <div class="tframe"><img src="assets/about%20me%20photos/dog.jpg" alt="Cooper, my Sheltie"></div>
+            </figure>
+            <figure class="tphoto" style="--r:2.5deg;--tr:6deg">
+              <div class="tframe"><img src="assets/about%20me%20photos/theo.jpg" alt="Disposable-camera mirror selfie with Theo"></div>
+            </figure>
+            <figure class="tphoto" style="--r:-1.5deg;--tr:3deg">
+              <div class="tframe"><img src="assets/about%20me%20photos/stickers.jpg" alt="Covered in Theo&rsquo;s stickers"></div>
+            </figure>
           </div>
 
           <div class="slabel">Essays &amp; talks</div>
           <div class="wcards">
             <div class="wcard" data-modal="builder-shift">
-              <div class="wtop"><span>april 2026</span><span class="wtag">essay</span></div>
+              <div class="wtop"><span>april 2026</span></div>
               <h3>The Builder Shift</h3>
               <p>The design landscape is changing. Looking backward at how we ended up here and whether our current positions support what comes next.</p>
-              <span class="wlink">~6 min read &rarr;</span>
+              <span class="wlink">Read essay</span>
             </div>
             <div class="wcard" data-modal="vibe-design">
-              <div class="wtop"><span>april 2026</span><span class="wtag">interactive talk</span></div>
+              <div class="wtop"><span>april 2026</span></div>
               <h3>Vibe Design &amp; The Dynamic Medium</h3>
               <p>Designing with AI as a creative medium. A goals-and-constraints framework with a 3D exploration simulation and live interactive demos.</p>
-              <span class="wlink">~40 slides &rarr;</span>
+              <span class="wlink">View presentation</span>
             </div>
           </div>
 
           <div class="slabel">Side projects</div>
           <div class="wcards">
-            <div class="wcard" data-modal="progress-app">
-              <div class="wtop"><span>project</span><span style="font-size:11px;letter-spacing:.08em;text-transform:uppercase">github &#8599;</span></div>
-              <h3>Progress App</h3>
-              <p>A gamified mood-tracking PWA I rebuild against each new AI model release to see how the medium is changing.</p>
-              <span class="wlink">view on github &rarr;</span>
-            </div>
-            <div class="wcard" data-modal="controller">
-              <div class="wtop"><span>project</span><span style="font-size:11px;letter-spacing:.08em;text-transform:uppercase">github &#8599;</span></div>
-              <h3>Controller Input Playground</h3>
-              <p>A web testbed for gamepad controller mappings and tuning the feel of pointer interactions.</p>
-              <span class="wlink">view on github &rarr;</span>
+            <div class="wcard" data-modal="papersync">
+              <div class="wtop"><span>project</span><span style="font-size:11px;letter-spacing:.08em;text-transform:uppercase">copilot cli skill</span></div>
+              <h3>PaperSync</h3>
+              <p>A Copilot CLI skill that keeps my code prototype and my Paper design doc in sync. I vibe-code, say &lsquo;sync to paper,&rsquo; and each change lands as a new lossless generation.</p>
+              <span class="wlink">How it works</span>
             </div>
           </div>
 
           <div class="contact">
             <span class="muted">Say hello &rarr;</span>
-            <a>hello@nickmcvey.com</a><a>LinkedIn</a><a>Read.cv</a>
+            <a href="mailto:nsmcvey@gmail.com">nsmcvey@gmail.com</a><a href="https://www.linkedin.com/in/nickmcvey/" target="_blank" rel="noopener">LinkedIn</a>
           </div>
         </div>
       </section>
 
       <section class="panel" id="west" data-pos="west">
-        <div class="ghost">W</div>
         <div class="wrap">
-          <div class="eyebrow"><span class="kbox">WEST · ART</span></div>
           <h2><span class="ibox">Art</span> &amp; sketches</h2>
-          <p class="lead">Before the portfolios and the portals, I was an artist. I still am.</p>
-          <div class="artgrid">
-            <div class="artcol">
-              <img class="artimg" style="height:240px" src="https://app.paper.design/file-assets/01KVRGREPQWV857GHSMNPTJE3H/197KDWXSF86WNC2N5KRTEW1KW2.png" alt="">
-              <img class="artimg" style="height:380px" src="https://app.paper.design/file-assets/01KVRGREPQWV857GHSMNPTJE3H/4JQX0EBVPV5J8WNXSRFPK57S39.png" alt="">
-            </div>
-            <div class="artcol">
-              <img class="artimg" style="height:430px" src="https://app.paper.design/file-assets/01KVRGREPQWV857GHSMNPTJE3H/1FCA2V18T6F6A0E6HX11DVWMDC.png" alt="">
-              <img class="artimg" style="height:250px" src="https://app.paper.design/file-assets/01KVRGREPQWV857GHSMNPTJE3H/235BTJRHZYB681Q0MDRKFHC4A8.png" alt="">
-              <img class="artimg" style="height:280px" src="https://app.paper.design/file-assets/01KVRGREPQWV857GHSMNPTJE3H/2XAHZRDT903D94BQ47HS8GGRXT.png" alt="">
-            </div>
-            <div class="artcol">
-              <img class="artimg" style="height:400px" src="https://app.paper.design/file-assets/01KVRGREPQWV857GHSMNPTJE3H/6AQDT5TQMZS3GW44TCTNV5EG1S.jpg" alt="">
-              <img class="artimg" style="height:270px;transform:rotate(6deg);box-shadow:0 0 18px rgba(0,0,0,.45)" src="https://app.paper.design/file-assets/01KVRGREPQWV857GHSMNPTJE3H/0PDY822WGB5HYGW1V87652791N.png" alt="">
-              <div class="artarchive"><b>38 pieces in the archive</b><span>sculpting · painting · illustration · 3d</span></div>
-            </div>
-          </div>
+          <p class="lead">Before the portfolios and the portals, I was an artist. I still am, sculpting, painting, illustration, and 3D.</p>
+          <p class="note">A whole wall of art lives to the west. Drag around and click anything to look closer.</p>
         </div>
       </section>
 
       <div id="timeline"></div>
+      <div id="artfield"></div>
 
     </div>
-  </div>
-
-  <div class="hint left">
-    <svg width="74" height="14" viewBox="0 0 74 14"><line x1="8" y1="7" x2="74" y2="7"/><polyline points="15,1 2,7 15,13"/></svg>
-    <span class="tx">Drag left to see my art and sketches</span>
-  </div>
-  <div class="hint right">
-    <svg width="74" height="14" viewBox="0 0 74 14"><line x1="0" y1="7" x2="66" y2="7"/><polyline points="59,1 72,7 59,13"/></svg>
-    <span class="tx">Drag this way to travel through my work history and case studies</span>
-  </div>
-  <div class="hint down">
-    <svg width="14" height="74" viewBox="0 0 14 74"><line x1="7" y1="0" x2="7" y2="66"/><polyline points="1,59 7,72 13,59"/></svg>
-    <span class="tx">Drag down to read some things i think about and my life</span>
   </div>
 
   <div class="navrail">
     <div class="bub home" data-go="home"><img class="bubface" src="https://app.paper.design/file-assets/01KVRGREPQWV857GHSMNPTJE3H/5HBH9RDB8RFX19K97V9VAJ1HTA.png" alt=""> back to center</div>
     <div class="bub parent" id="parentBubble">&uarr; 2021 · The Xbox era</div>
   </div>
+
+
 
   <div class="dock">
     <div class="help"><b>Scroll</b> to zoom &middot; <b>click &amp; drag</b> to move &middot; <b>arrow keys</b> to navigate</div>
@@ -367,6 +586,11 @@
     </div>
   </div>
 
+  <div class="hinttoast" id="hintToast">
+    <span>&#128075;&nbsp; <b>Tip:</b> click anything to fly there &middot; drag to explore &middot; scroll to zoom</span>
+    <span class="hx" id="hintClose" title="Got it">&times;</span>
+  </div>
+
   <div class="modal" id="modal">
     <div class="modal-backdrop" data-close></div>
     <div class="modal-panel">
@@ -375,23 +599,145 @@
     </div>
   </div>
 
+  <div id="artlb" aria-hidden="true">
+    <button class="alb-nav alb-prev" aria-label="Previous">&#8249;</button>
+    <img alt="">
+    <button class="alb-nav alb-next" aria-label="Next">&#8250;</button>
+    <button class="alb-x" aria-label="Close">&times;</button>
+    <div class="alb-count"></div>
+  </div>
+
+  <div class="tour" id="tour">
+    <div class="tour-card">
+      <div class="tour-ava-wrap">
+        <img class="tour-avatar" id="tourAva" src="https://app.paper.design/file-assets/01KVRGREPQWV857GHSMNPTJE3H/5HBH9RDB8RFX19K97V9VAJ1HTA.png" alt="">
+      </div>
+      <div class="tour-head">
+        <div class="tour-headmeta">
+          <div class="tour-title" id="tourTitle"></div>
+        </div>
+      </div>
+      <button class="tour-exit" id="tourExit" aria-label="Close">&times;</button>
+      <div class="tour-blurb" id="tourBlurb"></div>
+      <div class="tour-nav">
+        <button class="tour-prev" id="tourPrev" aria-label="Previous">
+          <svg class="tour-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h2v14H7V5Zm12 1.2v11.6L10 12l9-5.8Z"/></svg>
+        </button>
+        <button class="tour-play" id="tourPlay" aria-label="Pause">
+          <svg class="tour-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3.5v14H7V5Zm6.5 0H17v14h-3.5V5Z"/></svg>
+        </button>
+        <button class="tour-next" id="tourNext" aria-label="Next">
+          <svg class="tour-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5h2v14h-2V5ZM5 6.2 14 12l-9 5.8V6.2Z"/></svg>
+        </button>
+      </div>
+      <button class="tour-mute" id="tourMute" aria-label="Mute">
+        <svg class="tour-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4Zm12.2-1.2a5.9 5.9 0 0 1 0 8.4l1.4 1.4a7.9 7.9 0 0 0 0-11.2l-1.4 1.4Zm-2.1 2.1a2.9 2.9 0 0 1 0 4.2l1.4 1.4a4.9 4.9 0 0 0 0-7l-1.4 1.4Z"/></svg>
+      </button>
+      <div class="tour-voice">
+        <span class="tour-time" id="tourElapsed">0:00</span>
+        <input class="tour-seek" id="tourSeek" type="range" min="0" max="100" value="0" step="0.1" aria-label="Audio timeline">
+        <span class="tour-time" id="tourDuration">0:00</span>
+      </div>
+    </div>
+    <audio id="tourAudio" preload="none"></audio>
+  </div>
+
 <script>
   const A = 'https://app.paper.design/file-assets/01KVRGREPQWV857GHSMNPTJE3H/';
+
+  /* ---- north: game jams & side games ----
+     NOTE: links are placeholders ('#'). Drop in the real itch.io / Ludum Dare /
+     GitHub URLs per game when ready. */
+  const JAMS = [
+    { id:'jam-type-or-die', title:'Type or Die', tag:'Ludum Dare 41', meta:'2017 · FPS typing game',
+      cover:'5Y8C2BK4N7F26KCEYWY6NDZW75.png',
+      video:'wXGD97yi5X8',
+      imgs:['5Y8C2BK4N7F26KCEYWY6NDZW75.png'],
+      body:`<p>In 2017 I made a first-person multiplayer shooter typing game &mdash; type your friends&rsquo; names to shoot them. The faster and more accurately you type, the deadlier you are.</p><p class="muted">A weekend Ludum Dare experiment.</p>`,
+      link:'' },
+
+    { id:'jam-knowledge-is-life', title:'Knowledge is Life', tag:'Ludum Dare 44', meta:'Top-down dungeon',
+      cover:'0Z3TWV0MTJXQTCE1J131XNMNBW.png',
+      imgs:['0Z3TWV0MTJXQTCE1J131XNMNBW.png'],
+      body:`<p>A game and metaphor against the search for immortality. You hunt souls and hoard knowledge in a top-down dungeon &mdash; because in the end, knowledge is the only thing that really lasts.</p><p class="muted">A weekend Ludum Dare experiment. Only screenshots survive.</p>`,
+      link:'' },
+
+    { id:'jam-grid-wars', title:'Grid Wars: Tactics', tag:'7DFPS', meta:'Multiplayer · turn-based FPS',
+      cover:'4Y4D0ETRHQTHRJCTT8PM53YQ0S.png',
+      video:'7cvH_4Nx1nY',
+      imgs:['4Y4D0ETRHQTHRJCTT8PM53YQ0S.png','074RTRR0VJ65CAYBKX2K5QNYF0.png'],
+      body:`<p>Our multiplayer turn-based FPS began after I rage-quit XCOM when my guy missed a 95% shot. I knew I could have made that shot &mdash; so we built a game around that idea.</p><p>I handled character art, animation, game design, and visual effects. All the pre-viz concept art and tileable textures were AI-generated, which vastly helped with art direction and color cohesion &mdash; and let me push on other areas like animation.</p><p class="muted">Competition winners Free Lives are now releasing Anger Foot with Devolver Digital.</p>`,
+      link:'https://mrpossoms.itch.io/gridwars-tactics', linkText:'Play on itch.io &#8599;' },
+
+    { id:'jam-unnatural-selection', title:'Unnatural Selection', tag:'7DFPS', meta:'Wave shooter',
+      cover:'02EFGA2BKZSJ6PMEY815B2FD4N.png',
+      video:'0pAjVd7pcJI',
+      imgs:['02EFGA2BKZSJ6PMEY815B2FD4N.png'],
+      body:`<p>Welcome to the human body. You are an immune nanobot tasked with protecting the immune system&rsquo;s lymph nodes from the threat of ever-evolving viruses.</p><p>Right after ChatGPT dropped, we entered this jam to explore AI-driven, reinforcement-learning gameplay that adapts to each player. I handled game design, concept and 3D art, level design, and weapon animation.</p>`,
+      link:'https://phing1337.itch.io/unnatural-selection', linkText:'Play on itch.io &#8599;' },
+
+    { id:'jam-sweet-baby-boy', title:'Sweet Baby Boy', tag:'Ludum Dare 45', meta:'Voxel · custom engine',
+      cover:'0TWCWCJVNQ1JPP4AW0P4B3YX3N.png',
+      imgs:['0TWCWCJVNQ1JPP4AW0P4B3YX3N.png','3865QDFQ55R9DG0TF6SYA5VYNK.png','49V31P4SE4QXZD2R2BXA6RR9W6.png'],
+      body:`<p>We built Sweet Baby Boy on a friend&rsquo;s custom engine. I made the voxel art with Blockbench and MagicaVoxel while teammates handled audio and UI.</p><p>The goal is simple: keep your gamer son happy with a steady stream of soda and pizza.</p><p class="muted">A playable demo is coming soon &mdash; for now, these are screenshots.</p>`,
+      link:'', linkText:'Play on itch.io &#8599;' },
+
+    { id:'jam-human-harvest', title:'Human Harvest', tag:'Ludum Dare 50', meta:'Arcade',
+      cover:'1ZZRRM04XJGQA7FDM9Q3NMMFBC.png',
+      imgs:['1ZZRRM04XJGQA7FDM9Q3NMMFBC.png','0TCZ4EAKKVVJ4X4FV07N396X41.png'],
+      body:`<p>Time to refuel the ol&rsquo; space ship &mdash; better hoover up some farm critters and their owner. Earth&rsquo;s gravity is weird, though.</p><p>Our dev built a custom level editor that sped up level creation and linked directly to the build pipeline for instant builds.</p><p class="muted">A weekend Ludum Dare experiment. Only screenshots survive.</p>`,
+      link:'' },
+
+    { id:'jam-lil-wrangler', title:'Lil Wrangler', tag:'Playdate · Chill Jam', meta:'1-bit handheld',
+      cover:'5BRTAG05Y206Y97BHXX1ZPMTA4.png',
+      imgs:['5BRTAG05Y206Y97BHXX1ZPMTA4.png'],
+      body:`<p>A Playdate mini-game we built entirely by hand: my friend coded, my brother and I drew the art. AI only helped in pre-production, exploring ideas before we committed.</p><p class="muted">A handheld experiment. Only screenshots survive.</p>`,
+      link:'' },
+
+    { id:'jam-baja-blast', title:'Baja Blast', tag:'Slop Jam', meta:'3D rally toy',
+      cover:'43ZAJKRDXYK58EQGQDRJZTCRDR.png',
+      imgs:['43ZAJKRDXYK58EQGQDRJZTCRDR.png','2Z1RCKHJWTYMT2FDM1M19R4ZFW.png','3HY2VKCVAW2E9BKE1Z7VAJ86YT.png'],
+      body:`<p>A car toy more than a game &mdash; but a clear test of what&rsquo;s possible in a single weekend.</p><p>Curious but afraid, we ran a fully AI-driven game jam: every sprite, texture, and script came from prompts, and we opened Godot only to tweak a few variables.</p><p class="muted">Humans are still needed to make the things we can&rsquo;t imagine. Only screenshots survive.</p>`,
+      link:'' },
+  ];
+
+  /* west art gallery */
+  const ART = [
+    'art_1.jpg','art_3.jpg','art_4.png','art_5.png','art_6.png','art_7.png','art_8.png','art_10.jpg','art_11.jpg','art_16.jpg','art_17.jpg','art_18.jpg','art_19.png','art_20.png','art_21.jpg',
+    'art_24.jpg','art_26.jpg','art_29.jpg','art_30.jpg','art_31.png','art_33.jpg','art_34.jpg','art_35.jpg','art_37.gif','art_38.png','art_39.jpg','art_43.jpg','art_46.jpg','art_47.jpg','art_48.jpg',
+    'art_51.png','art_53.png','art_54.jpg','art_55.jpg','art_56.jpg','art_57.png','art_59.jpg','art_60.gif','Untitled_Artwork 5.jpg',
+    'DDF2FEF0-BFEE-4345-A4B7-F0BD7F09ED67.jpg','IMG_0091.JPG','IMG_0096 Copy Copy (1).JPG','IMG_0121.JPG','IMG_0220.jpg','IMG_0238.JPG','IMG_0255.JPG','IMG_0273.JPG',
+    'IMG_0276 Copy (1).JPG','IMG_0276 Copy (2).JPG','IMG_0276 Copy.JPG','IMG_0394.JPG','IMG_1013.JPG','IMG_1035 Copy.JPG','IMG_1142 Copy.JPG',
+    'valley-night.png','wallpaper.png'
+  ];
+  function artSrc(file){ return 'assets/' + file.split('/').map(encodeURIComponent).join('/'); }
+  const ART_LAYOUT = {
+    'art_11.jpg':'large','art_21.jpg':'tall','art_29.jpg':'large','art_35.jpg':'tall','art_38.png':'large','art_43.jpg':'wide','art_46.jpg':'wide',
+    'art_48.jpg':'wide','art_55.jpg':'tall','art_56.jpg':'tall','art_60.gif':'large','Untitled_Artwork 5.jpg':'tall',
+    'DDF2FEF0-BFEE-4345-A4B7-F0BD7F09ED67.jpg':'tall','IMG_0091.JPG':'tall','IMG_0096 Copy Copy (1).JPG':'wide','IMG_0121.JPG':'large',
+    'IMG_0220.jpg':'tall','IMG_0238.JPG':'wide','IMG_0273.JPG':'tall','IMG_0276 Copy.JPG':'large','IMG_0394.JPG':'wide','IMG_1035 Copy.JPG':'tall',
+    'valley-night.png':'panorama','wallpaper.png':'wide'
+  };
+  function artTileClass(file, idx){
+    return ART_LAYOUT[file] || (idx % 11 === 3 ? 'wide' : idx % 13 === 8 ? 'tall' : '');
+  }
+  (function(){
+    const field = document.getElementById('artfield');
+    if(!field) return;
+    field.innerHTML = `<section class="artwall">` + ART.map((file, idx) =>
+      `<button class="arttile ${artTileClass(file, idx)}" type="button" style="--tilt:${((idx % 5) - 2) * 0.7}deg" aria-label="Open artwork ${idx + 1}">`+
+        `<img class="artimg" data-i="${idx}" src="${artSrc(file)}" alt="" loading="lazy">`+
+      `</button>`
+    ).join('') + `</section>`;
+  })();
   const stations = [
-    { year:'2008', title:'Baby\u2019s first game',
-      blurb:'My first game, Animo Nex \u2014 built with friends for Microsoft\u2019s Dream Build Play 2008 on Xbox 360 using XNA.',
-      box:{w:685,h:354}, imgs:[
-        {u:'7N1HFGX8FR1FN6V14Q8VCV18T2.png',w:182,h:130,x:492,y:224,r:8},
-        {u:'5NY05JD8DCRXS9VE4K5V4Z8VVT.png',w:223,h:175,x:462,y:0,rot:1.24,r:5},
-        {u:'4S11BMCQBWSFN62W3ZNR2J94SJ.png',w:436,h:284,x:0,y:21,rot:-2.23,r:10},
-      ]},
-    { year:'2012', title:'Concept artist',
+    { year:'2012', title:'Concept, UI &amp; 3D artist',
       blurb:'I started my career as a concept artist, 3D modeler, and texture painter \u2014 cranking out social-casual games in weeks for audiences in the tens of millions.',
       box:{w:698,h:422}, imgs:[
         {u:'15Z2ZTMWD4KCV1VM2Q8BMQS4SE.png',w:451,h:293,x:59,y:35,rot:-1,r:8,b:2},
         {u:'2GW41C6V0XBRQZHJFASFT2BSMQ.png',w:294,h:233,x:371,y:153,rot:3.69,r:8},
       ]},
-    { year:'2013', title:'Designing at scale',
+    { year:'2013', title:'UI &amp; 3D artist',
       blurb:'Those games reached 40M+ monthly players. I learned to craft tiny, addictive loops that held up at massive scale.',
       box:{w:622,h:369}, imgs:[
         {u:'7ZXV6HRWW2E687FSH5YG5HNT98.png',w:398,h:245,x:18,y:24,rot:4.3,r:7},
@@ -399,148 +745,301 @@
         {u:'02DFJFA3M7E28TN4ZCBMV2YE4S.png',w:296,h:53,x:228,y:268,r:4},
         {u:'0G0M70P529P8ZSHVDP6DE336M7.png',w:294,h:48,x:228,y:321,r:4},
       ]},
-    { year:'2014', title:'UI design',
+    { year:'2014', title:'UI designer',
       blurb:'I moved into UI design on mobile games \u2014 pushing the limits of UI affordances and pioneering new interaction patterns.',
       box:{w:776,h:324}, imgs:[
         {u:'3NNJDZ4YC0BYK6VS2K1B8HGXZY.png',w:379,h:213,x:391,y:51,rot:-1.99,r:9,b:2},
         {u:'7H6GKR5VAG4E7DKZ0FD9AHHTYP.jpg',w:352,h:264,x:15,y:0,rot:3.19,r:8},
         {u:'087PB87X59PAQG1XBEBC642AJ7.png',w:280,h:174,x:220,y:150,r:13},
       ]},
-    { year:'2015', title:'UX &amp; SaaS',
+    { year:'2015', title:'UX designer',
       blurb:'I jumped into UX during the SaaS craze of 2015, consulting for clients from tax firms to governments as the world embraced gamification.',
       box:{w:552,h:347}, imgs:[
         {u:'4ZGBPJGPYE7428E2KNT1HQD8DC.png',w:457,h:295,x:0,y:0,r:7},
         {u:'0VZVCVRSWTGQCF6XKHPGZZ5Z8G.jpg',w:290,h:166,x:262,y:181,r:4},
       ]},
-    { year:'2016', title:'Advertising',
+    { year:'2016', title:'UX designer',
       blurb:'Then I got a taste of advertising \u2014 building game-style mechanics into Microsoft\u2019s Partner Education program to keep learners hooked.',
       box:{w:542,h:332}, imgs:[
         {u:'57PR2GSAWAQ5RCZFPDEH9Q4GFR.png',w:542,h:332,x:0,y:0,rot:-1.5,r:8},
       ]},
-    { year:'2018', title:'Microsoft Cloud + AI',
+    { year:'2018', title:'Product designer',
       blurb:'I joined Microsoft to help ship a developer tool for IoT devices that would grow into the Power Platform.',
       box:{w:812,h:409}, imgs:[
         {u:'0DRGNJN8CRBXQDB33KA94G09SP.png',w:486,h:272,x:295,y:124,r:7},
         {u:'01KVTS763XVE861RCE40TRN8SK.png',w:487,h:273,x:82,y:0,r:9},
       ]},
-    { year:'2021', title:'The Xbox era',
-      blurb:'Now I design the tools studios use to bring their games to Xbox \u2014 onboarding, publishing, and the platform itself.',
-      box:{w:540,h:360}, imgs:[
-        {u:'3N1JDNMA80NZZFTN3308RMGXS6.png',w:500,h:312,x:0,y:24,rot:-2,r:10,b:1},
+    { year:'2021', title:'The Xbox era', hero:true, caseKey:'onboarding',
+      blurb:'I stepped up into platform and ecosystem design \u2014 working across the entire Xbox program. Bigger than any one product: service design for how studios discover Xbox, onboard, build, publish, and ship.',
+      emblem:{x:200,y:110,w:320,h:320},
+      box:{w:720,h:540}, imgs:[
+        {u:'61R2KSXD9MSD1CKJ0F8RENRWXA.png',w:150,h:165,x:6,y:34,rot:-6,r:10},
+        {u:'6G56QAFV15N8SXGM8P5YTATWJV.png',w:212,h:141,x:498,y:0,rot:5,r:10},
+        {u:'02NWMBVNQ3HGRQNHV0YN7FPS29.png',w:186,h:128,x:18,y:380,rot:4,r:10},
+        {u:'4161NS49D4VWV3KT0358EKRNTE.png',w:200,h:126,x:500,y:388,rot:-5,r:10},
+      ]},
+    { year:'2023', title:'Game publishing', caseKey:'publishing', gapBefore:520,
+      blurb:'Then I took on publishing: the path from a finished build to a live product on Xbox. Store pages, pricing, packages, testing, and certification.',
+      box:{w:760,h:470}, imgs:[
+        {u:'1931QWC1BM7F162M37FSYRSWWT.png',w:560,h:339,x:0,y:24,rot:-2,r:10,b:1},
+        {u:'3EDFAF30HFX32ZC4RWK6N1F46D.png',w:380,h:272,x:392,y:198,rot:3,r:10,b:1},
+      ]},
+    { year:'2024', title:'Developer experiences', gapBefore:500,
+      blurb:'I spent the year deep in developer portal work, mostly the technical minutia that makes large systems usable: org structures, roles, permissions, productization models, and the partner UIs people rely on to manage complex platform tasks. Much of the work is still confidential, but the theme was clear: make the machinery understandable enough for people to operate it.',
+      box:{w:680,h:430}, imgs:[], secrets:[
+        {label:'Roles', x:12, y:26, w:300, h:180, rot:-3},
+        {label:'Permissions', x:250, y:122, w:350, h:206, rot:3},
+        {label:'Productization', x:52, y:250, w:330, h:156, rot:-1},
+      ]},
+    { year:'2025', title:'Xbox Mode',
+      blurb:'Xbox Mode brings a full-screen, console-like experience to Windows, GA in April and rolling out to billions of players. It boosts performance for focused gameplay, and I designed the system-level interactions: mouse mode for controllers, overlay management, and app switching for multitasking.',
+      box:{w:740,h:430}, imgs:[], slots:[
+        {w:430,h:262,x:0,y:18,rot:-3},
+        {w:350,h:232,x:320,y:158,rot:4},
+      ]},
+    { year:'2026', title:'Helix and secret things', gapBefore:500,
+      blurb:'I&rsquo;m working on the recently announced Xbox Helix console, and that is about all I can share. There are a few other unannounced things in flight too, so for now they stay under NDA tape.',
+      box:{w:760,h:430}, imgs:[], secrets:[
+        {label:'Helix', x:34, y:34, w:350, h:220, rot:-3},
+        {label:'Redacted', x:344, y:174, w:330, h:190, rot:4},
       ]},
   ];
 
   const tl = document.getElementById('timeline');
   const START = 820, GAP = 150, LEADIN = 560;
   let cur = START;
-  stations.forEach(s => { s._x = cur; s._w = Math.max(640, s.box.w); cur += s._w + GAP; });
+  stations.forEach(s => { cur += (s.gapBefore||0); s._x = cur; s._w = Math.max(640, s.box.w); cur += s._w + GAP; });
 
   stations.forEach(s => {
     const el = document.createElement('div');
-    el.className = 'station'; el.style.left = s._x + 'px';
+    el.className = 'station' + (s.caseKey ? ' caseorigin' : ''); el.style.left = s._x + 'px';
     const imgs = s.imgs.map(im =>
       `<img class="ph" data-u="${im.u}" src="${A}${im.u}" style="left:${im.x}px;top:${im.y}px;width:${im.w}px;height:${im.h}px;`+
       `transform:rotate(${im.rot||0}deg);border-radius:${im.r||8}px;`+
       `${im.b?`outline:${im.b}px solid #000;`:''}">`
     ).join('');
+    const emblem = s.emblem
+      ? `<div class="xbox-emblem" role="img" aria-label="Xbox" style="left:${s.emblem.x}px;top:${s.emblem.y}px;width:${s.emblem.w}px;height:${s.emblem.h}px;"></div>`
+      : '';
+    const slots = (s.slots||[]).map(sl =>
+      `<div class="st-slot" style="left:${sl.x}px;top:${sl.y}px;width:${sl.w}px;height:${sl.h}px;transform:rotate(${sl.rot||0}deg);">drop a screenshot</div>`
+    ).join('');
+    const secrets = (s.secrets||[]).map(sc =>
+      `<div class="nda-card" style="left:${sc.x}px;top:${sc.y}px;width:${sc.w}px;height:${sc.h}px;transform:rotate(${sc.rot||0}deg);">`+
+        `<div class="nda-body">${sc.label}</div>`+
+        `<div class="nda-tape">CONFIDENTIAL &middot; NDA &middot; CONFIDENTIAL &middot; NDA &middot; CONFIDENTIAL</div>`+
+      `</div>`
+    ).join('');
     el.innerHTML =
       `<div class="st-node"></div>`+
       `<div class="st-text">${s.year?`<div class="st-year">${s.year}</div>`:''}`+
       `<div class="st-title">${s.title}</div><div class="st-blurb">${s.blurb}</div></div>`+
-      `<div class="st-cluster" style="width:${s.box.w}px;height:${s.box.h}px;">${imgs}</div>`;
+      `<div class="st-cluster" style="width:${s.box.w}px;height:${s.box.h}px;">${emblem}${imgs}${slots}${secrets}</div>`;
     tl.appendChild(el);
   });
 
-  /* ---- Xbox case study, dropped onto the canvas as you keep dragging ---- */
-  const xboxX = stations[stations.length-1]._x;
-  const caseColX = xboxX;
-  const caseScenes = [
+  /* ---- Xbox case studies, dropped onto the canvas as you keep dragging ---- */
+  const HERO = stations.find(s => s.hero) || stations[stations.length-1];
+  const xboxX = HERO._x;
+  const caseStudies = {
+    onboarding: [
     { html:
       `<div class="cs-block" style="max-width:1320px;">
-         <span class="kbox">CASE STUDY · DEVELOPER ONBOARDING</span>
-         <div style="font-size:56px;font-weight:600;letter-spacing:-.03em;line-height:1.06;margin-top:30px;max-width:1180px;color:var(--ink);">Onto Xbox in two weeks, not six.</div>
-         <div class="cs-sub-lg" style="margin-top:30px;max-width:900px;">A developer pipeline is a serious business partnership &mdash; getting a studio onboarded shouldn&rsquo;t take six weeks. So I set out to automate the whole process end-to-end, without giving up curation.</div>
+         <div class="cs-h-xl" style="max-width:1100px;">Become an Xbox developer</div>
+         <div class="cs-sub-lg" style="margin-top:28px;max-width:1020px;">A developer pipeline is a serious business partnership &mdash; getting a studio onboarded shouldn&rsquo;t take six weeks. I worked with a small team to dissect the current processes and introduce a full self-service application, reducing the time to onboard from 6 weeks to 2.</div>
+         <div class="cs-bignum-lg" style="margin-top:38px;">
+           <div class="box"><b>6&rarr;2</b><span>WEEKS TO ONBOARD</span></div>
+         </div>
        </div>` },
     { html:
       `<div class="cs-block cs-row">
-         <div style="flex:0 0 480px;">
-           <span class="kbox">THE OLD WAY IN</span>
-           <div class="cs-h-xl" style="margin-top:24px;">Getting in meant getting lost.</div>
-           <div class="cs-sub-lg" style="margin-top:26px;max-width:460px;">A maze of static sites and unstructured email &mdash; no front door, and no way to track where you stood.</div>
+         <div style="flex:0 0 440px;">
+           <div class="cs-h-xl">Getting in meant getting lost.</div>
+           <div class="cs-sub-lg" style="margin-top:26px;max-width:430px;">A maze of static sites and unstructured email &mdash; no front door, and no way to track where you stood.</div>
          </div>
          <div style="display:flex;align-items:center;flex:0 0 auto;">
-           <img class="cph" data-u="2KNRCJRBRAPMCEPSGHMJ3Y4BFG.png" src="${A}2KNRCJRBRAPMCEPSGHMJ3Y4BFG.png" style="width:440px;height:400px;transform:rotate(-4deg);filter:grayscale(.2) drop-shadow(0 16px 28px rgba(0,0,0,.26));">
-           <img class="cph" data-u="5JBW6E31M3M3JNM1XMN7Q0Q21D.png" src="${A}5JBW6E31M3M3JNM1XMN7Q0Q21D.png" style="width:380px;height:330px;margin-left:-70px;transform:rotate(3deg);filter:grayscale(.2) drop-shadow(0 16px 28px rgba(0,0,0,.26));">
-           <img class="cph" data-u="28YMHBYF7SMRHZ1FCAGW2833QB.png" src="${A}28YMHBYF7SMRHZ1FCAGW2833QB.png" style="width:300px;height:360px;margin-left:-60px;transform:rotate(-2deg);filter:grayscale(.3) drop-shadow(0 16px 28px rgba(0,0,0,.26));">
+           <img class="cph" src="${A}61R2KSXD9MSD1CKJ0F8RENRWXA.png" style="width:330px;height:360px;transform:rotate(-4deg);filter:grayscale(.2) drop-shadow(0 16px 28px rgba(0,0,0,.26));">
+           <img class="cph" src="${A}4161NS49D4VWV3KT0358EKRNTE.png" style="width:360px;height:225px;margin-left:-45px;transform:rotate(3deg);filter:grayscale(.2) drop-shadow(0 16px 28px rgba(0,0,0,.26));">
+           <img class="cph" src="${A}4SMKKYMNFG2EVB2Q5ZGA6YHASE.png" style="width:240px;height:255px;margin-left:-45px;transform:rotate(5.63deg);filter:grayscale(.3) drop-shadow(0 16px 28px rgba(0,0,0,.26));">
          </div>
        </div>` },
     { html:
       `<div class="cs-block">
-         <span class="kbox">WHAT I BUILT</span>
-         <div class="cs-h-xl" style="margin-top:24px;max-width:1000px;">One front door. One guided path.</div>
-         <div style="display:flex;align-items:flex-start;gap:48px;margin-top:48px;">
-           <img class="cph" data-u="3N1JDNMA80NZZFTN3308RMGXS6.png" src="${A}3N1JDNMA80NZZFTN3308RMGXS6.png" style="width:600px;height:400px;transform:rotate(-1.5deg);border-radius:12px;">
-           <img class="cph" data-u="4HF1VTWBDMPEDAJ44FGTJTS2TJ.png" src="${A}4HF1VTWBDMPEDAJ44FGTJTS2TJ.png" style="width:600px;height:440px;transform:rotate(2deg);border-radius:12px;">
+         <div class="cs-h-xl" style="max-width:1040px;">A guided entry point that tracks progress and moves you through onboarding.</div>
+         <div style="display:flex;align-items:flex-start;gap:32px;margin-top:48px;">
+           <img class="cph" src="${A}6G56QAFV15N8SXGM8P5YTATWJV.png" style="width:700px;height:466px;transform:rotate(-1.5deg);border-radius:12px;">
+           <img class="cph" src="${A}02NWMBVNQ3HGRQNHV0YN7FPS29.png" style="width:560px;height:384px;transform:rotate(2deg);border-radius:12px;">
          </div>
-         <div class="cs-cap-lg">A unified, dynamic portal &mdash; and a guided application wizard with live progress for devs and curators alike.</div>
+         <div class="cs-sub-lg" style="margin-top:40px;max-width:900px;">It greets each developer, shows where they are, points to the next step, and keeps them moving until onboarding is done.</div>
        </div>` },
     { html:
       `<div class="cs-block">
-         <span class="kbox">IMPACT</span>
-         <div class="cs-h-xl" style="margin-top:24px;">Faster in. Cleaner out.</div>
+         <div class="cs-h-xl">Less spam, higher quality.</div>
          <div class="cs-bignum-lg">
-           <div class="box"><b>6&rarr;2</b><span>WEEKS TO ONBOARD</span></div>
            <div class="box"><b>&minus;75%</b><span>FORM FIELDS</span></div>
          </div>
          <div class="cs-sub-lg" style="margin-top:40px;max-width:900px;">Spam fell while acceptance quality rose &mdash; indie games now reach Xbox sooner, strengthening the catalog and Game Pass.</div>
        </div>` },
     { html:
       `<div class="cs-block">
-         <span class="kbox">NEXT</span>
-         <div class="cs-h-xl" style="margin-top:24px;">Publishing &amp; game testing.</div>
-         <div class="cs-sub-lg" style="margin-top:28px;max-width:760px;">Once a developer is in, the next challenge is getting their game out. That case study is coming soon.</div>
+         <div class="cs-h-xl">Publishing &amp; game testing.</div>
+         <div class="cs-sub-lg" style="margin-top:28px;max-width:760px;">Once a developer is in, the next challenge is getting their game out &mdash; onto the Xbox store.</div>
+         <button class="cs-cta" data-fly="publishing">Explore the publishing story&nbsp; &rarr;</button>
        </div>` },
-  ];
+    ],
+    publishing: [
+    { html:
+      `<div class="cs-block" style="max-width:1320px;">
+         <div class="cs-h-xl" style="max-width:1100px;">Make game publishing self-service, end to end.</div>
+         <div class="cs-sub-lg" style="margin-top:28px;max-width:1040px;">Publishing turns a finished build into a live product: store pages, pricing, builds, testing, and certification. In 2023 that whole path still ran through Microsoft. The goal was simple to say and hard to do. Make it self-service, from first upload to launch.</div>
+       </div>` },
+    { html:
+      `<div class="cs-block">
+         <div class="cs-eyebrow-lg">What creators kept telling us</div>
+         <div class="cs-h-xl" style="max-width:1040px;margin-top:14px;">Creators felt challenged by publishing, and often couldn&rsquo;t finish it on their own.</div>
+         <div class="cs-points">
+           <div class="cs-point">
+             <div class="cs-point-n">01</div>
+             <div class="cs-point-h">Not self-service</div>
+             <div class="cs-point-t">Going live required Microsoft to step in, which slowed teams down and left the process feeling out of their hands.</div>
+           </div>
+           <div class="cs-point">
+             <div class="cs-point-n">02</div>
+             <div class="cs-point-h">Difficult to use</div>
+             <div class="cs-point-t">The tools and guidance were obtuse and confusing, with unclear paths and steps that were easy to miss.</div>
+           </div>
+           <div class="cs-point">
+             <div class="cs-point-n">03</div>
+             <div class="cs-point-h">Very manual</div>
+             <div class="cs-point-t">Too much of the work was hands-on and repetitive, which introduced errors and made every launch slow.</div>
+           </div>
+         </div>
+       </div>` },
+    { html:
+      `<div class="cs-block cs-row">
+         <div style="flex:0 0 470px;">
+           <div class="cs-h-xl">Partner Center.</div>
+           <div class="cs-sub-lg" style="margin-top:26px;max-width:450px;">Our last generation&rsquo;s publishing portal. The single gateway for going live on Xbox, powerful but aging.</div>
+           <ul class="cs-list cs-flags">
+             <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3.5l8.6 15.2H3.4z" fill="#e5484d"/><rect x="11" y="9" width="2" height="5.6" rx="1" fill="#fff"/><circle cx="12" cy="16.7" r="1.15" fill="#fff"/></svg> Human help was needed to launch</li>
+             <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 21V4" stroke="#e5484d" stroke-width="2" stroke-linecap="round"/><path d="M6 4.2h11.5l-2.6 3.6L17.5 11.4H6z" fill="#e5484d"/></svg> Not designed for game workflows</li>
+             <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 21V4" stroke="#e5484d" stroke-width="2" stroke-linecap="round"/><path d="M6 4.2h11.5l-2.6 3.6L17.5 11.4H6z" fill="#e5484d"/></svg> Confusing layout and poor structure</li>
+             <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 21V4" stroke="#e5484d" stroke-width="2" stroke-linecap="round"/><path d="M6 4.2h11.5l-2.6 3.6L17.5 11.4H6z" fill="#e5484d"/></svg> UI missteps caused leaks</li>
+             <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 21V4" stroke="#e0a23b" stroke-width="2" stroke-linecap="round"/><path d="M6 4.2h11.5l-2.6 3.6L17.5 11.4H6z" fill="#e0a23b"/></svg> Cert rules were unclear and hard to follow</li>
+           </ul>
+         </div>
+         <div style="flex:0 0 auto;">
+           <img class="cph" src="${A}1931QWC1BM7F162M37FSYRSWWT.png" style="width:460px;height:278px;transform:rotate(-1.5deg);border-radius:0;filter:none;">
+         </div>
+       </div>` },
+    { html:
+      `<div class="cs-block">
+         <div class="cs-h-xl" style="max-width:1100px;">Untangling the knots of Partner Center.</div>
+         <div class="cs-sub-lg" style="margin-top:26px;max-width:1040px;">Overhauling Partner Center meant patient mapping and careful dissection. Publishing is both vast and deep, from build pipelines to global pricing. We charted every page and touchpoint, then traced the flows that tied them together.</div>
+         <div style="display:flex;align-items:flex-start;gap:30px;margin-top:46px;">
+           <img class="cph" src="${A}5T0XMEVBQB5JRV4ZV0MQKA7129.png" style="width:430px;height:486px;transform:rotate(-3deg);border-radius:10px;">
+           <img class="cph" src="${A}7QSSJVR4TTG5C6Z9PXPG5V4P9G.png" style="width:330px;height:507px;transform:rotate(2.5deg);border-radius:10px;">
+         </div>
+         <div class="cs-sub-md" style="margin-top:30px;max-width:840px;"><b style="color:var(--ink)">Audits &amp; analysis.</b> Heuristic reviews, usage data, and interviews revealed core workflows, extra steps, and unclear guidance, pinpointing creator pain points.</div>
+       </div>` },
+    { html:
+      `<div class="cs-block">
+         <div class="cs-h-xl" style="max-width:1000px;">A portal creators could actually finish.</div>
+         <div class="cs-sub-lg" style="margin-top:26px;max-width:1040px;">The final direction brought publishing into one guided experience. We kept the depth large studios needed, but made the path clearer for everyone else: what to do next, what was missing, and how close a game was to launch.</div>
+         <img class="cph" src="${A}3EDFAF30HFX32ZC4RWK6N1F46D.png" style="width:1120px;height:803px;margin-top:46px;transform:rotate(-1deg);border-radius:14px;">
+         <div class="cs-sub-md" style="margin-top:34px;max-width:900px;"><b style="color:var(--ink)">Self-service, end to end.</b> Products, packages, testing, certification, and launch status in one place, with the next step always visible.</div>
+       </div>` },
+    { html:
+      `<div class="cs-block">
+         <div class="cs-h-xl">Why it matters.</div>
+         <div class="cs-sub-lg" style="margin-top:26px;max-width:1040px;">Steam saw 18,725 games launch in 2024, up 32%, and a quarter of its monthly top sellers came from first-time developers. Epic added 1,300 PC titles in 2023 and grew to 295M users by 2024. Lowering the barriers brings more creators, more games for players, and more business for Xbox.</div>
+         <div class="cs-bignum-lg" style="margin-top:44px;">
+           <div class="box"><b>18,725</b><span>STEAM LAUNCHES IN 2024</span></div>
+           <div class="box"><b>+32%</b><span>YEAR OVER YEAR</span></div>
+         </div>
+         <div class="cs-sub-md" style="margin-top:34px;max-width:760px;">That work carried forward into developer experiences, package management, build pipelines, and game testing.</div>
+         <button class="cs-cta" data-fly="developer-experiences">Continue to developer experiences&nbsp; &rarr;</button>
+       </div>` },
+    ],
+  };
 
-  // horizontal thread: home -> the 2021 node
-  const spine = document.createElement('div');
-  spine.className = 'spine';
+  // horizontal thread: home -> the last node
+  const SVGNS = 'http://www.w3.org/2000/svg';
+  function dashLine(len, vertical){
+    const svg = document.createElementNS(SVGNS, 'svg');
+    svg.setAttribute('class', vertical ? 'vspine' : 'spine');
+    svg.setAttribute('width', vertical ? 4 : len);
+    svg.setAttribute('height', vertical ? len : 4);
+    const ln = document.createElementNS(SVGNS, 'line');
+    ln.setAttribute('x1', vertical ? 2 : 0); ln.setAttribute('y1', vertical ? 0 : 2);
+    ln.setAttribute('x2', vertical ? 2 : len); ln.setAttribute('y2', vertical ? len : 2);
+    svg.appendChild(ln);
+    return svg;
+  }
+  const lastX = stations[stations.length-1]._x;
+  const spine = dashLine(lastX + 6 - LEADIN, false);
   spine.style.left = LEADIN + 'px';
-  spine.style.top = '0px';
-  spine.style.width = (xboxX + 6 - LEADIN) + 'px';
+  spine.style.top = '-2px';
   tl.appendChild(spine);
 
-  // cue to descend into the case study
-  const cue = document.createElement('div');
-  cue.className = 'downcue';
-  cue.style.left = (caseColX + 20) + 'px';
-  cue.style.top = '880px';
-  cue.innerHTML = '&darr;&nbsp; drag down for the case study';
-  tl.appendChild(cue);
-
-  // case study scenes stack DOWN from the Xbox era (vertical descent)
-  let cy0 = 1150;
-  caseScenes.forEach(sc => {
-    const el = document.createElement('div');
-    el.className = 'station casescene';
-    el.style.left = caseColX + 'px';
-    el.style.top = cy0 + 'px';
-    el.innerHTML = `<div class="st-node"></div><div class="cs-wrap">${sc.html}</div>`;
-    tl.appendChild(el);
-    cy0 += el.offsetHeight + 300;
-  });
-  const caseEndY = cy0;
-
-  // vertical thread down through the case study
-  const vspine = document.createElement('div');
-  vspine.className = 'vspine';
-  vspine.style.left = (caseColX - 1) + 'px';
-  vspine.style.top = '0px';
-  vspine.style.height = caseEndY + 'px';
-  tl.appendChild(vspine);
-
   const c1 = document.createElement('div'); c1.className = 'tl-cap'; c1.style.left = LEADIN + 'px'; tl.appendChild(c1);
-  const c2 = document.createElement('div'); c2.className = 'tl-cap'; c2.style.left = caseColX + 'px'; c2.style.top = (caseEndY - 7) + 'px'; tl.appendChild(c2);
+
+  // build a vertical case-study column descending from a station
+  const flyTargets = {};
+  function buildCaseColumn(colX, scenes, key){
+    const cue = document.createElement('div');
+    cue.className = 'downcue';
+    cue.style.left = (colX + 20) + 'px';
+    cue.style.top = '840px';
+    cue.innerHTML = '&darr;&nbsp; drag down to learn more';
+    tl.appendChild(cue);
+
+    let cy0 = 1150; const firstY = cy0;
+    scenes.forEach(sc => {
+      const el = document.createElement('div');
+      el.className = 'station casescene';
+      el.style.left = colX + 'px';
+      el.style.top = cy0 + 'px';
+      el.innerHTML = `<div class="st-node"></div><div class="cs-wrap">${sc.html}</div>`;
+      tl.appendChild(el);
+      cy0 += el.offsetHeight + 300;
+    });
+    const endY = cy0;
+
+    const R = 46;
+    const vspine = dashLine(endY - R, true);
+    vspine.style.left = (colX - 2) + 'px';
+    vspine.style.top = R + 'px';
+    tl.appendChild(vspine);
+
+    const bend = document.createElement('div');
+    bend.className = 'vbend';
+    bend.style.left = (colX - R) + 'px';
+    bend.style.top = '0px';
+    bend.innerHTML = `<svg width="${R}" height="${R}" viewBox="0 0 ${R} ${R}" fill="none"><path d="M0 1 A ${R} ${R} 0 0 1 ${R} ${R}"/></svg>`;
+    tl.appendChild(bend);
+
+    const cap = document.createElement('div'); cap.className = 'tl-cap'; cap.style.left = colX + 'px'; cap.style.top = (endY - 9) + 'px'; tl.appendChild(cap);
+
+    flyTargets[key] = {x: colX + 480, y: firstY + 320, z: 0.5};
+    return endY;
+  }
+
+  stations.filter(s => s.caseKey).forEach(s => buildCaseColumn(s._x, caseStudies[s.caseKey], s.caseKey));
+  const developerExperiences = stations.find(s => s.year === '2024');
+  if(developerExperiences){
+    flyTargets['developer-experiences'] = {
+      x: developerExperiences._x + developerExperiences._w / 2,
+      y: 320,
+      z: 0.62
+    };
+  }
+
+  // "next" buttons fly the canvas to another case column
+  document.querySelectorAll('[data-fly]').forEach(el =>
+    el.addEventListener('click', () => { if(dragMoved) return; const f = flyTargets[el.dataset.fly]; if(f) tweenToPoint(f.x, f.y, f.z); }));
+
+  const caseColX = xboxX;
 
   // strip the shadow from transparent (alpha) PNGs so cutouts just float
   function markCutouts(){
@@ -576,23 +1075,68 @@
   let modalOpen = false;
   const IFRAME_PLACEHOLDER = `<div style="font-family:ui-monospace,monospace;height:100%;display:flex;flex-direction:column;gap:14px;align-items:center;justify-content:center;background:#0b0b0c;color:#f4f4f5;text-align:center;padding:24px"><div style="font-size:22px">&#9654;&nbsp; Vibe Design &amp; The Dynamic Medium</div><div style="opacity:.6;font-size:13px;max-width:46ch;line-height:1.6">Your live talk / slide deck embeds right here. Point the iframe at the demo URL when it&rsquo;s ready.</div></div>`;
   const MODALS = {
-    'builder-shift':{kind:'content',tag:'Essay',meta:'April 2026 · ~6 min read',title:'The Builder Shift',
-      body:`<p>The design landscape is changing. This essay looks backward at how we ended up here &mdash; and asks whether our current positions as designers support what comes next.</p><p class="muted">Full reader view loads here &mdash; wire up the real essay content or URL.</p>`},
-    'vibe-design':{kind:'iframe',title:'Vibe Design & The Dynamic Medium',meta:'April 2026 · ~40 slides · interactive talk'},
-    'progress-app':{kind:'content',tag:'Project',meta:'PWA · rebuilt per model release',title:'Progress App',
-      body:`<p>A gamified mood-tracking PWA I rebuild against each new AI model release to see how the medium is changing &mdash; a living benchmark for vibe-designing real software.</p>`,link:'#'},
-    'controller':{kind:'content',tag:'Project',meta:'Web testbed',title:'Controller Input Playground',
-      body:`<p>A web testbed for gamepad controller mappings and tuning the feel of pointer interactions &mdash; dead-zones, acceleration curves, and edge cases.</p>`,link:'#'},
+    'builder-shift':{kind:'iframe',src:'essays/the-builder-shift/index.html?embed=1',title:'The Builder Shift',meta:'April 2026 · essay'},
+    'vibe-design':{kind:'iframe',src:'https://phing1337.github.io/vibe-design-talk/',title:'Vibe Design & The Dynamic Medium',meta:'April 2026 · interactive talk'},
+    'papersync':{kind:'content',tag:'Skill',meta:'Copilot CLI · Paper MCP',title:'PaperSync',
+      body:`<p>A Copilot CLI skill that keeps my hand-coded prototype and my Paper design document in sync. I vibe-code in plain HTML/CSS, say &lsquo;sync to paper,&rsquo; and every change lands in Paper as a new <em>generation</em>, laid out left-to-right like a timeline, so nothing is ever overwritten.</p><p>The shared design tokens carry across both sides, so the prototype and the design never drift. Even live WebGL shaders get frozen into token-driven keyframes on the canvas.</p><p class="muted">Invoke it in Copilot CLI with <strong>/papersync</strong>.</p>`},
   };
+  let NORTHY = -1045, NORTHZ = 0.74;
+  /* build the cartridge shelf and register a modal for each game */
+  (function(){
+    const grid = document.getElementById('northgrid');
+    if(grid){
+      grid.innerHTML = JAMS.map((j,i) => `
+        <div class="cart" data-modal="${j.id}" title="${j.title}">
+          <div class="cart-stage">
+            <div class="cart-bob" style="animation-delay:${(i*0.45).toFixed(2)}s;animation-duration:${(4.6+(i%4)*0.4).toFixed(2)}s">
+              <div class="cart-3d">
+                <div class="face f-back"></div>
+                <div class="face f-left"></div>
+                <div class="face f-right"></div>
+                <div class="face f-top"></div>
+                <div class="face f-bottom"></div>
+                <div class="face f-front">
+                  <div class="label"><img src="${A}${j.cover}" alt="${j.title}" loading="lazy"></div>
+                  <div class="grip"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="cart-title">${j.title}</div>
+        </div>`).join('');
+    }
+    JAMS.forEach(j => { MODALS[j.id] = {kind:'content', imgs:j.imgs, video:j.video, tag:j.tag, meta:j.meta, title:j.title, body:j.body, link:j.link, linkText:j.linkText}; });
+    const n = document.getElementById('north');
+    if(n){ const topPx = parseFloat(getComputedStyle(n).top) || -1680; NORTHY = Math.round(topPx + n.offsetHeight/2); }
+  })();
+
   function openModal(id){
     const m = MODALS[id]; if(!m) return;
+    const youtubeId = video => {
+      const raw = String(video || '').trim();
+      const match = raw.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([^?&/]+)/);
+      return match ? match[1] : raw;
+    };
+    const youtubeWatchUrl = video => `https://www.youtube.com/watch?v=${encodeURIComponent(youtubeId(video))}`;
+    const youtubeEmbedUrl = video => {
+      const params = new URLSearchParams({si:'goZjBjAa_vaDsuY8'});
+      return `https://www.youtube.com/embed/${encodeURIComponent(youtubeId(video))}?${params.toString()}`;
+    };
     modal.classList.toggle('iframe', m.kind === 'iframe');
     if(m.kind === 'iframe'){
       modalBody.className = 'modal-body iframe-body';
-      modalBody.innerHTML = `<div class="m-frame-head"><div class="ft">${m.title}</div><div class="fm">${m.meta}</div></div><iframe class="m-frame" srcdoc="${IFRAME_PLACEHOLDER.replace(/"/g,'&quot;')}"></iframe>`;
+      const frameTag = m.src ? `<iframe class="m-frame" src="${m.src}" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>` : `<iframe class="m-frame" srcdoc="${IFRAME_PLACEHOLDER.replace(/"/g,'&quot;')}"></iframe>`;
+      modalBody.innerHTML = `<div class="m-frame-head"><div class="ft">${m.title}</div><div class="fm">${m.meta}</div></div>` + frameTag;
     } else {
       modalBody.className = 'modal-body';
-      modalBody.innerHTML = `${m.tag?`<span class="m-tag">${m.tag}</span>`:''}<div class="m-meta">${m.meta||''}</div><div class="m-title">${m.title}</div><div class="m-text">${m.body}</div>${m.link?`<a class="m-link" href="${m.link}" target="_blank" rel="noopener">View on GitHub &#8599;</a>`:''}`;
+      const video = m.video
+        ? `<div class="m-video"><iframe width="560" height="315" src="${youtubeEmbedUrl(m.video)}" title="YouTube video player" frameborder="0" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>`+
+          `<div class="m-video-actions"><a href="${youtubeWatchUrl(m.video)}" target="_blank" rel="noopener">Watch on YouTube &#8599;</a></div>`
+        : '';
+      const gallery = (m.imgs && m.imgs.length)
+        ? `<div class="m-gallery${m.imgs.length>1?' multi':''}">${m.imgs.map(u=>`<img class="m-shot" src="${A}${u}" alt="" loading="lazy">`).join('')}</div>`
+        : (m.cover ? `<img class="m-cover" src="${A}${m.cover}" alt="">` : '');
+      modalBody.innerHTML = `${video}${gallery}${m.tag?`<span class="m-tag">${m.tag}</span>`:''}<div class="m-meta">${m.meta||''}</div><div class="m-title">${m.title}</div><div class="m-text">${m.body}</div>${m.link?`<a class="m-link" href="${m.link}" target="_blank" rel="noopener">${m.linkText||'View on GitHub &#8599;'}</a>`:''}`;
     }
     modal.classList.add('open'); modalOpen = true;
   }
@@ -600,15 +1144,37 @@
   modal.querySelectorAll('[data-close]').forEach(el => el.addEventListener('click', closeModal));
   document.querySelectorAll('[data-modal]').forEach(el => el.addEventListener('click', () => openModal(el.dataset.modal)));
 
-  const regions = {home:{x:0,y:0}, south:{x:0,y:950}, west:{x:-1600,y:0}, east:{x:START + stations[0]._w/2, y:300}};
-  const xboxFocus = {x:xboxX + stations[stations.length-1]._w/2, y:300};
+  const regions = {home:{x:0,y:0}, north:{x:0,y:NORTHY,z:NORTHZ}, south:{x:0,y:950}, west:{x:-2440,y:0}, east:{x:START + stations[0]._w/2, y:300}};
+  const xboxFocus = {x:xboxX + HERO._w/2, y:300};
+
+  // dynamic "parent" nav — each timeline station that owns a case column gets its
+  // own back-up bubble, so the rail re-centers on the right era as you drift between
+  // the Xbox/onboarding column and the publishing column further along the timeline.
+  const caseParents = stations.filter(s => s.caseKey).map(s => ({
+    x: s._x,
+    label: `&uarr; ${s.year} · ${s.title}`,
+    focus: {x: s._x + s._w/2, y: 300}
+  }));
+  let currentParent = caseParents[0] || {focus: xboxFocus, label: '&uarr; 2021 · The Xbox era'};
+  const parentBubbleEl = document.getElementById('parentBubble');
+
   const ZMIN = 0.18, ZMAX = 2.6;
   const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
 
   let panX = innerWidth/2, panY = innerHeight/2, zoom = 1;
 
+  // Keep the world layer GPU-promoted only while moving; drop will-change when
+  // idle so the browser re-rasterizes crisply at the current zoom (no blur).
+  let wcTimer = null;
+  function bumpRasterScale(){
+    if(world.style.willChange !== 'transform') world.style.willChange = 'transform';
+    if(wcTimer) clearTimeout(wcTimer);
+    wcTimer = setTimeout(() => { world.style.willChange = 'auto'; }, 200);
+  }
+
   function apply(){
     world.style.transform = `translate(${panX}px,${panY}px) scale(${zoom})`;
+    bumpRasterScale();
     grid.style.backgroundSize = `${32*zoom}px ${32*zoom}px`;
     grid.style.backgroundPosition = `${panX}px ${panY}px`;
     zlvl.textContent = Math.round(zoom*100) + '%';
@@ -616,7 +1182,13 @@
     let best='free', bd=1e9;
     for(const k in regions){ const o=regions[k]; const d=Math.hypot(cx-o.x, cy-o.y); if(d<bd){bd=d;best=k;} }
     document.body.dataset.pos = bd < 820 ? best : 'free';
-    document.body.classList.toggle('in-case', cy > 950 && cx > xboxX - 1400);
+    const inCase = cy > 950 && cx > xboxX - 1400;
+    document.body.classList.toggle('in-case', inCase);
+    if(inCase && caseParents.length){
+      let p = caseParents[0];
+      for(const c of caseParents){ if(cx >= c.x - 300) p = c; }
+      if(p !== currentParent){ currentParent = p; parentBubbleEl.innerHTML = p.label; }
+    }
   }
   function zoomAt(sx, sy, nz){
     nz = clamp(nz, ZMIN, ZMAX);
@@ -626,19 +1198,29 @@
 
   let tweenRAF = null;
   function cancelTween(){ if(tweenRAF) cancelAnimationFrame(tweenRAF); tweenRAF = null; }
-  function tweenToPoint(ox, oy, tz=1, dur=760){
+  function tweenToPoint(ox, oy, tz=1, dur){
     cancelTween(); stopInertia();
-    const tx = innerWidth/2 - ox*tz, ty = innerHeight/2 - oy*tz;
-    const sx=panX, sy=panY, sz=zoom, t0=performance.now();
+    const iw = innerWidth, ih = innerHeight, sz = zoom;
+    const scx = (iw/2 - panX)/sz, scy = (ih/2 - panY)/sz;   // current center (world)
+    const ecx = ox, ecy = oy;                               // destination center (world)
+    const dist = Math.hypot(ecx - scx, ecy - scy);
+    if(!dur) dur = clamp(640 + dist*0.10, 640, 1150);
+    const dip = clamp(dist/2600, 0, 1);                     // farther travel -> bigger pull-back
+    const t0 = performance.now();
     const ease = t => t<.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2;
     const step = now => {
       const k = Math.min(1,(now-t0)/dur), e = ease(k);
-      panX = sx+(tx-sx)*e; panY = sy+(ty-sy)*e; zoom = sz+(tz-sz)*e; apply();
-      if(k<1) tweenRAF = requestAnimationFrame(step); else tweenRAF = null;
+      const cx = scx + (ecx-scx)*e, cy = scy + (ecy-scy)*e; // glide the focal point
+      const arc = Math.sin(Math.PI*k);                      // 0 -> 1 -> 0
+      const linZ = sz + (tz - sz)*e;
+      const z = clamp(linZ * (1 - 0.32*dip*arc), ZMIN, ZMAX); // zoom out mid-flight, settle on tz
+      zoom = z; panX = iw/2 - cx*z; panY = ih/2 - cy*z; apply();
+      if(k<1){ tweenRAF = requestAnimationFrame(step); }
+      else { zoom = tz; panX = iw/2 - ecx*tz; panY = ih/2 - ecy*tz; apply(); tweenRAF = null; }
     };
     tweenRAF = requestAnimationFrame(step);
   }
-  function focus(r){ const o = regions[r] || regions.home; tweenToPoint(o.x, o.y, 1); }
+  function focus(r){ const o = regions[r] || regions.home; tweenToPoint(o.x, o.y, o.z||1); }
 
   let inertiaRAF = null, vel = {x:0,y:0};
   function stopInertia(){ if(inertiaRAF) cancelAnimationFrame(inertiaRAF); inertiaRAF = null; vel = {x:0,y:0}; }
@@ -653,16 +1235,17 @@
 
   const pts = new Map();
   let mode = null, panStart = null, pinchStart = null, last = null, lastT = 0;
+  let dragMoved = false;
   const dist = (a,b)=>Math.hypot(a.x-b.x, a.y-b.y);
   const mid  = (a,b)=>({x:(a.x+b.x)/2, y:(a.y+b.y)/2});
 
   vp.addEventListener('pointerdown', e => {
     if(e.pointerType==='mouse' && e.button!==0) return;
-    if(modalOpen) return;
+    if(modalOpen || artLbOpen) return;
     stopInertia(); cancelTween();
     pts.set(e.pointerId, {x:e.clientX, y:e.clientY});
     if(pts.size === 1){
-      mode = 'maybe'; panStart = {x:e.clientX, y:e.clientY, panX, panY};
+      mode = 'maybe'; dragMoved = false; panStart = {x:e.clientX, y:e.clientY, panX, panY};
       last = {x:e.clientX, y:e.clientY}; lastT = performance.now(); vel = {x:0,y:0};
     } else if(pts.size === 2){
       const a = [...pts.values()]; mode = 'pinch'; pinchStart = {d:dist(a[0],a[1]), z:zoom};
@@ -679,7 +1262,8 @@
       const dx = e.clientX - panStart.x, dy = e.clientY - panStart.y;
       if(mode === 'maybe'){
         if(Math.hypot(dx,dy) < 4) return;
-        mode = 'pan'; vp.classList.add('grabbing');
+        mode = 'pan'; dragMoved = true; vp.classList.add('grabbing');
+        if(typeof dismissHint === 'function') dismissHint();
         try{ vp.setPointerCapture(e.pointerId); }catch(_){}
       }
       panX = panStart.panX + dx; panY = panStart.panY + dy;
@@ -700,15 +1284,138 @@
   window.addEventListener('pointerup', endPointer);
   window.addEventListener('pointercancel', endPointer);
 
+  /* ---------- art image lightbox (shadowbox) ---------- */
+  const artlb = document.getElementById('artlb');
+  const artlbImg = artlb.querySelector('img');
+  const artlbCount = artlb.querySelector('.alb-count');
+  let artLbOpen = false, artLbIdx = 0;
+
+  function setArtImage(i){
+    artLbIdx = (i + ART.length) % ART.length;
+    artlbImg.src = artSrc(ART[artLbIdx]);
+    artlbCount.textContent = String(artLbIdx+1).padStart(2,'0') + ' / ' + ART.length;
+  }
+  function centerArtImage(){
+    const vw = innerWidth, vh = innerHeight;
+    const nw = artlbImg.naturalWidth || 1200, nh = artlbImg.naturalHeight || 900;
+    const scale = Math.min(vw*.92/nw, vh*.88/nh, 1);
+    const w = nw * scale, h = nh * scale;
+    return {left:(vw-w)/2, top:(vh-h)/2, width:w, height:h};
+  }
+  function placeArt(rect){
+    Object.assign(artlbImg.style, {
+      left: rect.left + 'px', top: rect.top + 'px',
+      width: rect.width + 'px', height: rect.height + 'px'
+    });
+  }
+  function showArt(i){
+    setArtImage(i);
+    artlbImg.classList.remove('zooming');
+    artlbImg.style.cssText = '';
+  }
+  function openArt(i, fromEl){
+    setArtImage(i);
+    artlb.classList.add('open');
+    artlb.setAttribute('aria-hidden','false');
+    artLbOpen = true;
+    const from = fromEl.getBoundingClientRect();
+    artlbImg.classList.add('zooming');
+    artlbImg.style.opacity = '0';
+    placeArt(from);
+    const finish = () => {
+      const target = centerArtImage();
+      artlbImg.style.opacity = '1';
+      requestAnimationFrame(() => placeArt(target));
+      artlbImg.removeEventListener('load', finish);
+    };
+    if(artlbImg.complete && artlbImg.naturalWidth) finish();
+    else artlbImg.addEventListener('load', finish);
+  }
+  function closeArt(){
+    const img = document.querySelector(`#artfield .artimg[data-i="${artLbIdx}"]`);
+    if(img && artlbImg.classList.contains('zooming')){
+      placeArt(img.getBoundingClientRect());
+      artlbImg.style.opacity = '0';
+      setTimeout(() => {
+        artlb.classList.remove('open');
+        artlb.setAttribute('aria-hidden','true');
+        artLbOpen = false;
+        artlbImg.classList.remove('zooming');
+        artlbImg.style.cssText = '';
+        artlbImg.removeAttribute('src');
+      }, 260);
+    } else {
+      artlb.classList.remove('open');
+      artlb.setAttribute('aria-hidden','true');
+      artLbOpen = false;
+      artlbImg.removeAttribute('src');
+    }
+  }
+  document.getElementById('artfield').addEventListener('click', e => {
+    if(dragMoved) return;
+    const tile = e.target.closest('.arttile');
+    const img = e.target.closest('.artimg') || (tile ? tile.querySelector('.artimg') : null); if(!img) return;
+    openArt(+img.dataset.i, img);
+  });
+  artlb.addEventListener('click', e => { if(e.target === artlb) closeArt(); });
+  artlb.querySelector('.alb-x').addEventListener('click', e => { e.stopPropagation(); closeArt(); });
+  artlb.querySelector('.alb-prev').addEventListener('click', e => { e.stopPropagation(); showArt(artLbIdx-1); });
+  artlb.querySelector('.alb-next').addEventListener('click', e => { e.stopPropagation(); showArt(artLbIdx+1); });
+
   vp.addEventListener('wheel', e => {
-    if(modalOpen) return;
+    if(modalOpen || artLbOpen) return;
     e.preventDefault(); stopInertia(); cancelTween();
     zoomAt(e.clientX, e.clientY, zoom * Math.exp(-e.deltaY * 0.0015));
   }, {passive:false});
 
   document.querySelectorAll('[data-go]').forEach(el =>
     el.addEventListener('click', () => focus(el.dataset.go)));
-  document.getElementById('parentBubble').onclick = () => tweenToPoint(xboxFocus.x, xboxFocus.y, 1);
+  parentBubbleEl.onclick = () => tweenToPoint(currentParent.focus.x, currentParent.focus.y, 1);
+
+  /* ---------- one-time onboarding hint ---------- */
+  const hintToast = document.getElementById('hintToast');
+  let hintDone = false;
+  function dismissHint(){
+    if(hintDone || !hintToast) return;
+    hintDone = true; hintToast.classList.remove('show');
+    try{ localStorage.setItem('nm_hint_seen','1'); }catch(_){}
+  }
+  if(hintToast){
+    let seen = false; try{ seen = !!localStorage.getItem('nm_hint_seen'); }catch(_){}
+    if(seen){ hintDone = true; }
+    else { setTimeout(() => { if(!hintDone) hintToast.classList.add('show'); }, 1400); setTimeout(dismissHint, 11000); }
+    const hc = document.getElementById('hintClose');
+    if(hc) hc.addEventListener('click', dismissHint);
+  }
+
+  /* ---------- click-to-move: a clean click flies the camera to what you clicked ---------- */
+  function spawnRipple(wx, wy){
+    const r = document.createElement('div');
+    r.className = 'ripple';
+    r.style.left = wx + 'px'; r.style.top = wy + 'px';
+    r.innerHTML = '<span class="rring"></span><span class="rdot"></span>';
+    world.appendChild(r);            // lives on the canvas, tracks pan + zoom
+    setTimeout(() => r.remove(), 680);
+  }
+  const NAV_IGNORE = 'button, a, input, textarea, select, [data-modal], [data-fly], [data-go], [data-close], .artimg, #parentBubble, .bub, .tour-btn, .hinttoast';
+  vp.addEventListener('click', e => {
+    if(modalOpen || artLbOpen) return;
+    if(dragMoved) return;                      // it was a pan, not a click
+    if(e.target.closest(NAV_IGNORE)) return;   // let real controls do their job
+    dismissHint();
+    const cwx = (e.clientX - panX) / zoom, cwy = (e.clientY - panY) / zoom;
+    spawnRipple(cwx, cwy);                      // ripple anchored to the clicked world point
+    const el = e.target.closest('.casescene, .station, .panel');
+    let wx, wy;
+    if(el){
+      const r = el.getBoundingClientRect();
+      wx = (r.left + r.width/2 - panX) / zoom;
+      wy = (r.top + r.height/2 - panY) / zoom;
+    } else {
+      wx = cwx; wy = cwy;
+    }
+    tweenToPoint(wx, wy, zoom);
+  });
 
   const zc = () => ({x:innerWidth/2, y:innerHeight/2});
   document.getElementById('zin').onclick    = () => { const c=zc(); zoomAt(c.x,c.y, zoom*1.2); };
@@ -723,16 +1430,197 @@
   };
 
   window.addEventListener('keydown', e => {
+    if(artLbOpen){
+      if(e.key==='Escape') closeArt();
+      else if(e.key==='ArrowLeft') showArt(artLbIdx-1);
+      else if(e.key==='ArrowRight') showArt(artLbIdx+1);
+      return;
+    }
     if(modalOpen){ if(e.key==='Escape') closeModal(); return; }
     if(e.key==='Escape' || e.key==='Home'){ focus('home'); }
     else if(e.key==='ArrowLeft'){ focus('west'); }
     else if(e.key==='ArrowRight'){ focus('east'); }
     else if(e.key==='ArrowDown'){ focus('south'); }
-    else if(e.key==='ArrowUp'){ focus('home'); }
+    else if(e.key==='ArrowUp'){ focus('north'); }
     else if(e.key==='+' || e.key==='='){ const c=zc(); zoomAt(c.x,c.y, zoom*1.2); }
     else if(e.key==='-' || e.key==='_'){ const c=zc(); zoomAt(c.x,c.y, zoom/1.2); }
     else if(e.key==='0'){ focus('home'); }
   });
+
+  /* ---------- guided tour ---------- */
+  const TOUR = [
+    {title:"Intro", blurb:"Hi, I’m Nick. Welcome to the canvas.", x:0, y:0, z:1, audio:"assets/audio tour/intro.m4a", duration:95},
+    {title:"Timeline", blurb:"To the right is the timeline.", x:(LEADIN + lastX) / 2, y:260, z:0.18, audio:"assets/audio tour/timeline.m4a", duration:125},
+    {title:"Xbox onboarding", blurb:"A healthy gaming ecosystem needs developers.", x:caseColX+420, y:1600, z:0.55, audio:"", duration:34},
+    {title:"Game publishing", blurb:"An overview of publishing portals and getting games ready to sell.", x:flyTargets.publishing.x, y:flyTargets.publishing.y, z:flyTargets.publishing.z, audio:"", duration:38},
+    {title:"Developer work", blurb:"Developer portals, roles, permissions, Xbox Mode, Helix, and NDA tape.", x:9556, y:320, z:0.44, audio:"", duration:42},
+    {title:"Things I think about", blurb:"The more personal side: ideas, writing, and what I care about.", x:0, y:1000, z:0.8, audio:"", duration:32},
+    {title:"Art and sketches", blurb:"Drawing, painting, 3D, animation, and trying a bit of everything.", x:-2440, y:0, z:0.42, audio:"", duration:34},
+    {title:"Fun projects", blurb:"Game jams and experiments with friends.", x:0, y:NORTHY, z:0.6, audio:"", duration:28},
+    {title:"Close", blurb:"Back to center.", x:0, y:0, z:1, audio:"", duration:18},
+  ];
+  const tourEl = document.getElementById('tour');
+  const tourCard = tourEl.querySelector('.tour-card');
+  const tourAudio = document.getElementById('tourAudio');
+  const tEl = id => document.getElementById(id);
+  let tourIdx = 0;
+  let tourSpeaking = false;
+  let tourRate = 1;
+  let tourVirtualDuration = 0;
+  let tourVirtualRemaining = 0;
+  let tourVirtualTimer = null;
+  const tourIcons = {
+    play:'<svg class="tour-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10-6.5-10-6.5Z"/></svg>',
+    pause:'<svg class="tour-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3.5v14H7V5Zm6.5 0H17v14h-3.5V5Z"/></svg>',
+    volume:'<svg class="tour-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4Zm12.2-1.2a5.9 5.9 0 0 1 0 8.4l1.4 1.4a7.9 7.9 0 0 0 0-11.2l-1.4 1.4Zm-2.1 2.1a2.9 2.9 0 0 1 0 4.2l1.4 1.4a4.9 4.9 0 0 0 0-7l-1.4 1.4Z"/></svg>',
+    muted:'<svg class="tour-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4Zm12.7-.7-1.4 1.4L17.6 12l-2.3 2.3 1.4 1.4L19 13.4l2.3 2.3 1.4-1.4-2.3-2.3 2.3-2.3-1.4-1.4L19 10.6l-2.3-2.3Z"/></svg>'
+  };
+  function fmtTime(sec){
+    if(!Number.isFinite(sec) || sec < 0) return '--:--';
+    sec = Math.ceil(sec);
+    return Math.floor(sec/60) + ':' + String(sec%60).padStart(2,'0');
+  }
+  function currentTourDuration(){
+    if(tourAudio.getAttribute('src') && Number.isFinite(tourAudio.duration)) return tourAudio.duration;
+    return tourVirtualDuration || TOUR[tourIdx]?.duration || 0;
+  }
+  function currentTourTime(){
+    if(tourAudio.getAttribute('src')) return Number.isFinite(tourAudio.currentTime) ? tourAudio.currentTime : 0;
+    return Math.max(0, currentTourDuration() - tourVirtualRemaining);
+  }
+  function updateTourTime(){
+    const duration = currentTourDuration();
+    const current = Math.min(duration, currentTourTime());
+    const pct = duration ? (current / duration) * 100 : 0;
+    tEl('tourElapsed').textContent = fmtTime(current);
+    tEl('tourDuration').textContent = fmtTime(duration);
+    const seek = tEl('tourSeek');
+    seek.value = pct;
+    seek.style.setProperty('--p', pct + '%');
+  }
+  function stopVirtualTimer(){
+    if(tourVirtualTimer) clearInterval(tourVirtualTimer);
+    tourVirtualTimer = null;
+  }
+  function startVirtualTimer(){
+    stopVirtualTimer();
+    tourVirtualTimer = setInterval(() => {
+      if(!tourSpeaking || tourAudio.getAttribute('src')) return;
+      tourVirtualRemaining = Math.max(0, tourVirtualRemaining - tourRate);
+      updateTourTime();
+      if(tourVirtualRemaining <= 0) setPlay(false);
+    }, 1000);
+  }
+  function setPlay(p){
+    tourSpeaking = !!p;
+    tEl('tourPlay').innerHTML = p ? tourIcons.pause : tourIcons.play;
+    tEl('tourPlay').setAttribute('aria-label', p ? 'Pause' : 'Play');
+  }
+  function updateMute(){
+    const muted = tourAudio.muted || tourAudio.volume === 0;
+    tEl('tourMute').innerHTML = muted ? tourIcons.muted : tourIcons.volume;
+    tEl('tourMute').setAttribute('aria-label', muted ? 'Unmute' : 'Mute');
+  }
+  function launchGuideFace(){
+    const src = document.querySelector('#home .vr');
+    const dst = tEl('tourAva');
+    if(!src || !dst) return;
+    const a = src.getBoundingClientRect();
+    const b = dst.getBoundingClientRect();
+    const fly = new Image();
+    fly.src = src.src;
+    fly.className = 'tour-fly';
+    const start = Math.min(92, Math.max(46, a.width * .58));
+    fly.style.left = (a.left + a.width/2 - start/2) + 'px';
+    fly.style.top = (a.top + a.height/2 - start/2) + 'px';
+    fly.style.width = start + 'px';
+    fly.style.height = start + 'px';
+    fly.style.borderRadius = '16px';
+    fly.style.transform = 'rotate(-3deg)';
+    document.body.appendChild(fly);
+    requestAnimationFrame(() => {
+      fly.style.left = b.left + 'px';
+      fly.style.top = b.top + 'px';
+      fly.style.width = b.width + 'px';
+      fly.style.height = b.height + 'px';
+      fly.style.borderRadius = '11px';
+      fly.style.transform = 'rotate(-3deg)';
+    });
+    setTimeout(() => { fly.style.opacity = '0'; }, 360);
+    setTimeout(() => fly.remove(), 560);
+  }
+  function showStop(i){
+    tourIdx = (i + TOUR.length) % TOUR.length;
+    const s = TOUR[tourIdx];
+    tEl('tourTitle').textContent = s.title;
+    tEl('tourBlurb').textContent = s.blurb;
+    tEl('tourNext').setAttribute('aria-label', tourIdx === TOUR.length-1 ? 'Finish tour' : 'Next');
+    tEl('tourPrev').disabled = tourIdx === 0;
+    tweenToPoint(s.x, s.y, s.z);
+    tourVirtualDuration = s.duration || 30;
+    tourVirtualRemaining = tourVirtualDuration;
+    if(s.audio){
+      stopVirtualTimer();
+      tourAudio.src = s.audio;
+      tourAudio.volume = 0.82;
+      tourAudio.muted = false;
+      tourAudio.playbackRate = tourRate;
+      updateMute();
+      updateTourTime();
+      tourAudio.play().then(()=>setPlay(true)).catch(()=>setPlay(true));
+    } else {
+      tourAudio.removeAttribute('src');
+      updateTourTime();
+      setPlay(true);
+      startVirtualTimer();
+    }
+  }
+  function startTour(){
+    tourEl.classList.add('open');
+    document.body.classList.add('touring');
+    showStop(0);
+    setTimeout(launchGuideFace, 80);
+  }
+  function endTour(){
+    tourEl.classList.remove('open');
+    document.body.classList.remove('touring');
+    setPlay(false);
+    try{ tourAudio.pause(); }catch(e){}
+    stopVirtualTimer();
+    focus('home');
+  }
+  tEl('tourBtn').addEventListener('click', startTour);
+  tEl('tourNext').addEventListener('click', () => { if(tourIdx === TOUR.length-1) endTour(); else showStop(tourIdx+1); });
+  tEl('tourPrev').addEventListener('click', () => showStop(tourIdx-1));
+  tEl('tourExit').addEventListener('click', endTour);
+  tEl('tourMute').addEventListener('click', () => {
+    tourAudio.muted = !tourAudio.muted;
+    updateMute();
+  });
+  tEl('tourPlay').addEventListener('click', () => {
+    if(tourSpeaking){
+      try{ tourAudio.pause(); }catch(e){}
+      setPlay(false);
+    } else {
+      if(tourAudio.getAttribute('src')) tourAudio.play().catch(()=>{});
+      setPlay(true);
+      if(!tourAudio.getAttribute('src')) startVirtualTimer();
+    }
+  });
+  tEl('tourSeek').addEventListener('input', e => {
+    const duration = currentTourDuration();
+    const next = duration * (Number(e.target.value) / 100);
+    if(tourAudio.getAttribute('src') && Number.isFinite(tourAudio.duration)){
+      tourAudio.currentTime = next;
+    } else {
+      tourVirtualRemaining = Math.max(0, duration - next);
+    }
+    updateTourTime();
+  });
+  tourAudio.addEventListener('timeupdate', updateTourTime);
+  tourAudio.addEventListener('loadedmetadata', updateTourTime);
+  tourAudio.addEventListener('volumechange', updateMute);
+  tourAudio.addEventListener('ended', () => setPlay(false));
 
   addEventListener('resize', apply);
   apply();
