@@ -465,6 +465,14 @@
     0 18px 90px rgba(0,0,0,.45);}
   body.touring #home .vr{opacity:0;transform:translateY(-42px) scale(.7);transition:.35s var(--ease);}
   @media(max-width:760px){.tour{width:min(430px,calc(100vw - 24px))}.tour-card{grid-template-columns:34px 1fr auto;padding:10px;border-radius:0 0 16px 16px}.tour-ava-wrap,.tour-avatar{width:34px;height:34px;border-radius:9px}.tour-voice{grid-column:1 / -1}.tour-nav{grid-column:2 / 3}}
+  @media (prefers-reduced-motion: reduce){
+    *, *::before, *::after{
+      animation-duration:.01ms !important;
+      animation-iteration-count:1 !important;
+      transition-duration:.01ms !important;
+      scroll-behavior:auto !important;
+    }
+  }
 </style>
 </head>
 <body data-theme="light" data-pos="home">
@@ -1160,6 +1168,8 @@
 
   const ZMIN = 0.18, ZMAX = 2.6;
   const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+  const motionQuery = matchMedia('(prefers-reduced-motion: reduce)');
+  const prefersReducedMotion = () => motionQuery.matches;
 
   let panX = innerWidth/2, panY = innerHeight/2, zoom = 1;
 
@@ -1195,11 +1205,18 @@
     const wx = (sx - panX)/zoom, wy = (sy - panY)/zoom;
     zoom = nz; panX = sx - wx*zoom; panY = sy - wy*zoom; apply();
   }
+  function setCameraToPoint(ox, oy, tz=1){
+    zoom = clamp(tz, ZMIN, ZMAX);
+    panX = innerWidth/2 - ox*zoom;
+    panY = innerHeight/2 - oy*zoom;
+    apply();
+  }
 
   let tweenRAF = null;
   function cancelTween(){ if(tweenRAF) cancelAnimationFrame(tweenRAF); tweenRAF = null; }
   function tweenToPoint(ox, oy, tz=1, dur){
     cancelTween(); stopInertia();
+    if(prefersReducedMotion()){ setCameraToPoint(ox, oy, tz); return; }
     const iw = innerWidth, ih = innerHeight, sz = zoom;
     const scx = (iw/2 - panX)/sz, scy = (ih/2 - panY)/sz;   // current center (world)
     const ecx = ox, ecy = oy;                               // destination center (world)
@@ -1450,7 +1467,7 @@
   /* ---------- guided tour ---------- */
   const TOUR = [
     {title:"Intro", blurb:"Hi, I’m Nick. Welcome to the canvas.", x:0, y:0, z:1, audio:"assets/audio tour/intro.m4a", duration:95},
-    {title:"Timeline", blurb:"To the right is the timeline.", x:(LEADIN + lastX) / 2, y:260, z:0.18, audio:"assets/audio tour/timeline.m4a", duration:125},
+    {title:"Timeline", blurb:"To the right is the timeline.", x:(LEADIN + lastX) / 2, y:260, z:0.18, audio:"assets/audio tour/timeline.m4a", duration:125, motion:"timeline-pan"},
     {title:"Xbox onboarding", blurb:"A healthy gaming ecosystem needs developers.", x:caseColX+420, y:1600, z:0.55, audio:"", duration:34},
     {title:"Game publishing", blurb:"An overview of publishing portals and getting games ready to sell.", x:flyTargets.publishing.x, y:flyTargets.publishing.y, z:flyTargets.publishing.z, audio:"", duration:38},
     {title:"Developer work", blurb:"Developer portals, roles, permissions, Xbox Mode, Helix, and NDA tape.", x:9556, y:320, z:0.44, audio:"", duration:42},
@@ -1469,6 +1486,7 @@
   let tourVirtualDuration = 0;
   let tourVirtualRemaining = 0;
   let tourVirtualTimer = null;
+  let tourMotionRAF = null;
   const tourIcons = {
     play:'<svg class="tour-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10-6.5-10-6.5Z"/></svg>',
     pause:'<svg class="tour-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3.5v14H7V5Zm6.5 0H17v14h-3.5V5Z"/></svg>',
@@ -1488,6 +1506,48 @@
     if(tourAudio.getAttribute('src')) return Number.isFinite(tourAudio.currentTime) ? tourAudio.currentTime : 0;
     return Math.max(0, currentTourDuration() - tourVirtualRemaining);
   }
+  function activeTourMotion(){
+    return TOUR[tourIdx]?.motion === 'timeline-pan';
+  }
+  function timelinePanBounds(){
+    const first = stations[0];
+    const last = stations[stations.length - 1];
+    const z = innerWidth < 760 ? 0.34 : 0.46;
+    return {
+      startX: first._x + first._w/2,
+      endX: last._x + last._w/2,
+      y: 300,
+      z
+    };
+  }
+  function applyTimelinePan(){
+    if(!activeTourMotion() || prefersReducedMotion()) return;
+    const b = timelinePanBounds();
+    const duration = currentTourDuration() || TOUR[tourIdx]?.duration || 1;
+    const p = clamp(currentTourTime() / duration, 0, 1);
+    setCameraToPoint(b.startX + (b.endX - b.startX) * p, b.y, b.z);
+  }
+  function stopTourMotion(){
+    if(tourMotionRAF) cancelAnimationFrame(tourMotionRAF);
+    tourMotionRAF = null;
+  }
+  function startTourMotion(){
+    stopTourMotion();
+    if(!activeTourMotion() || prefersReducedMotion()) return;
+    cancelTween();
+    stopInertia();
+    const tick = () => {
+      applyTimelinePan();
+      if(tourSpeaking && activeTourMotion()) tourMotionRAF = requestAnimationFrame(tick);
+      else tourMotionRAF = null;
+    };
+    tick();
+  }
+  function tourCameraTarget(s){
+    if(s.motion !== 'timeline-pan' || prefersReducedMotion()) return s;
+    const b = timelinePanBounds();
+    return {x:b.startX, y:b.y, z:b.z, instant:true};
+  }
   function updateTourTime(){
     const duration = currentTourDuration();
     const current = Math.min(duration, currentTourTime());
@@ -1497,6 +1557,7 @@
     const seek = tEl('tourSeek');
     seek.value = pct;
     seek.style.setProperty('--p', pct + '%');
+    if(activeTourMotion() && !tourSpeaking) applyTimelinePan();
   }
   function stopVirtualTimer(){
     if(tourVirtualTimer) clearInterval(tourVirtualTimer);
@@ -1515,6 +1576,8 @@
     tourSpeaking = !!p;
     tEl('tourPlay').innerHTML = p ? tourIcons.pause : tourIcons.play;
     tEl('tourPlay').setAttribute('aria-label', p ? 'Pause' : 'Play');
+    if(p) startTourMotion();
+    else stopTourMotion();
   }
   function updateMute(){
     const muted = tourAudio.muted || tourAudio.volume === 0;
@@ -1550,13 +1613,16 @@
     setTimeout(() => fly.remove(), 560);
   }
   function showStop(i){
+    stopTourMotion();
     tourIdx = (i + TOUR.length) % TOUR.length;
     const s = TOUR[tourIdx];
     tEl('tourTitle').textContent = s.title;
     tEl('tourBlurb').textContent = s.blurb;
     tEl('tourNext').setAttribute('aria-label', tourIdx === TOUR.length-1 ? 'Finish tour' : 'Next');
     tEl('tourPrev').disabled = tourIdx === 0;
-    tweenToPoint(s.x, s.y, s.z);
+    const target = tourCameraTarget(s);
+    if(target.instant){ cancelTween(); stopInertia(); setCameraToPoint(target.x, target.y, target.z); }
+    else tweenToPoint(target.x, target.y, target.z);
     tourVirtualDuration = s.duration || 30;
     tourVirtualRemaining = tourVirtualDuration;
     if(s.audio){
@@ -1587,6 +1653,7 @@
     setPlay(false);
     try{ tourAudio.pause(); }catch(e){}
     stopVirtualTimer();
+    stopTourMotion();
     focus('home');
   }
   tEl('tourBtn').addEventListener('click', startTour);
@@ -1616,6 +1683,7 @@
       tourVirtualRemaining = Math.max(0, duration - next);
     }
     updateTourTime();
+    applyTimelinePan();
   });
   tourAudio.addEventListener('timeupdate', updateTourTime);
   tourAudio.addEventListener('loadedmetadata', updateTourTime);
