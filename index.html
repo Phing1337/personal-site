@@ -231,14 +231,10 @@
   .casescene .cs-wrap{padding-left:96px;zoom:.82;}
   .casescene .cs-block{padding-top:0;}
   .downcue{position:absolute;font-size:15px;font-weight:600;color:var(--accent);letter-spacing:.04em;white-space:nowrap;}
-  .xbox-emblem{position:absolute;display:flex;align-items:center;justify-content:center;border-radius:50%;
-    background:radial-gradient(circle at 34% 28%, rgba(255,255,255,.9), rgba(255,255,255,.24) 24%, rgba(16,124,16,.9) 45%, #107c10 72%);
-    box-shadow:0 24px 56px rgba(0,0,0,.26), inset 0 0 0 2px rgba(255,255,255,.22);}
-  .xbox-emblem:before,.xbox-emblem:after{content:'';position:absolute;width:62%;height:15%;border-radius:999px;background:rgba(255,255,255,.94);
-    box-shadow:0 0 18px rgba(255,255,255,.28);}
-  .xbox-emblem:before{transform:rotate(43deg);}
-  .xbox-emblem:after{transform:rotate(-43deg);}
-  [data-theme="dark"] .xbox-emblem{background:radial-gradient(circle at 34% 28%, rgba(247,238,222,.72), rgba(247,238,222,.18) 24%, rgba(255,107,61,.82) 46%, #8c2f1b 76%);}
+  .xbox-emblem{position:absolute;display:flex;align-items:center;justify-content:center;}
+  .xlogo{position:absolute;width:100%;height:100%;object-fit:contain;pointer-events:none;-webkit-user-drag:none;}
+  [data-theme="light"] .xlogo-dark{display:none;}
+  [data-theme="dark"] .xlogo-light{display:none;}
   .station{position:absolute;top:0;display:flex;flex-direction:column;z-index:1;
     opacity:0;transform:translateY(22px);transition:opacity .6s var(--ease), transform .75s var(--ease);}
   .station.in{opacity:1;transform:none;}
@@ -827,7 +823,9 @@
       `${im.b?`outline:${im.b}px solid #000;`:''}">`
     ).join('');
     const emblem = s.emblem
-      ? `<div class="xbox-emblem" role="img" aria-label="Xbox" style="left:${s.emblem.x}px;top:${s.emblem.y}px;width:${s.emblem.w}px;height:${s.emblem.h}px;"></div>`
+      ? `<div class="xbox-emblem" style="left:${s.emblem.x}px;top:${s.emblem.y}px;width:${s.emblem.w}px;height:${s.emblem.h}px;">`+
+        `<img class="xlogo xlogo-light" src="assets/timeline%20assets/XBOX_logo_Sphere_4C_forLight_RGB_2026-05-20.png" alt="Xbox">`+
+        `<img class="xlogo xlogo-dark" src="assets/timeline%20assets/XBOX_Sphere_logo_4C_forDark_RGB_2026-05-20.png" alt="Xbox"></div>`
       : '';
     const slots = (s.slots||[]).map(sl =>
       `<div class="st-slot" style="left:${sl.x}px;top:${sl.y}px;width:${sl.w}px;height:${sl.h}px;transform:rotate(${sl.rot||0}deg);">drop a screenshot</div>`
