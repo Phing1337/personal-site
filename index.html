@@ -1512,19 +1512,24 @@
   function timelinePanBounds(){
     const first = stations[0];
     const last = stations[stations.length - 1];
-    const z = innerWidth < 760 ? 0.34 : 0.46;
+    const z = innerWidth < 760 ? 0.42 : 0.58;
+    const viewW = innerWidth / z;
     return {
-      startX: first._x + first._w/2,
-      endX: last._x + last._w/2,
+      startX: first._x + first._w/2 + viewW * 0.12,
+      endX: last._x + last._w/2 - viewW * 0.16,
       y: 300,
       z
     };
+  }
+  function timelinePanProgress(t){
+    t = clamp(t, 0, 1);
+    return t * t * (3 - 2 * t);
   }
   function applyTimelinePan(){
     if(!activeTourMotion() || prefersReducedMotion()) return;
     const b = timelinePanBounds();
     const duration = currentTourDuration() || TOUR[tourIdx]?.duration || 1;
-    const p = clamp(currentTourTime() / duration, 0, 1);
+    const p = timelinePanProgress(currentTourTime() / duration);
     setCameraToPoint(b.startX + (b.endX - b.startX) * p, b.y, b.z);
   }
   function stopTourMotion(){
