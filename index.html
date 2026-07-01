@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-<title>Nick McVey — Spatial Portfolio (Prototype)</title>
+<title>Nick McVey Portfolio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1660,10 +1660,12 @@
     if(p) startTourMotion();
     else stopTourMotion();
   }
-  // Manual drag/zoom/click on the canvas takes priority over the guided tour's
-  // auto-pan: pause playback instead of fighting the user's input every frame.
+  // Manual drag/zoom/click takes priority over the guided tour's continuous
+  // auto-pan (the timeline stop): pause playback instead of fighting the user's
+  // input every frame. Regular stops just fly the camera once and hold still,
+  // so panning/zooming there shouldn't interrupt the narration.
   function pauseTourForInterruption(){
-    if(!tourSpeaking) return;
+    if(!tourSpeaking || !activeTourMotion()) return;
     try{ tourAudio.pause(); }catch(e){}
     setPlay(false);
   }
