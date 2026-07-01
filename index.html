@@ -116,6 +116,21 @@
     text-transform:uppercase;color:rgba(255,255,255,.6);font-family:ui-monospace,monospace;}
   @media (max-width:600px){ #artlb{padding:16px;} #artlb .alb-nav{width:44px;height:44px;} #artlb .alb-prev{left:10px;} #artlb .alb-next{right:10px;} }
 
+  /* station / case-study screenshot lightbox */
+  #shotlb{position:fixed;inset:0;z-index:250;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;
+    background:rgba(8,8,10,0);backdrop-filter:blur(0);padding:48px;cursor:zoom-out;
+    opacity:0;pointer-events:none;transition:opacity .28s ease,background .28s ease,backdrop-filter .28s ease;}
+  #shotlb.open{opacity:1;pointer-events:auto;background:rgba(8,8,10,.86);backdrop-filter:blur(10px);}
+  #shotlb img{max-width:90vw;max-height:76vh;border-radius:10px;box-shadow:0 40px 120px rgba(0,0,0,.6);
+    cursor:default;-webkit-user-drag:none;transform:scale(.97);transition:transform .32s var(--ease);}
+  #shotlb.open img{transform:scale(1);}
+  #shotlb .shotlb-cap{max-width:640px;text-align:center;color:rgba(255,255,255,.92);font-size:14.5px;line-height:1.6;
+    font-family:var(--font-mono);cursor:default;}
+  #shotlb .shotlb-x{position:fixed;top:20px;right:24px;width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,.24);
+    background:rgba(20,20,22,.7);color:#fff;font-size:22px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s;}
+  #shotlb .shotlb-x:hover{background:var(--accent);border-color:var(--accent);}
+  @media (max-width:600px){ #shotlb{padding:20px;} }
+
   /* south: thinking + life */
   .slabel{font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin:54px 0 22px;}
   .about-row{display:grid;grid-template-columns:1.5fr 1fr;gap:60px;margin-top:26px;align-items:start;}
@@ -244,6 +259,9 @@
   .st-year{font-size:60px;font-weight:600;color:var(--accent);letter-spacing:-.03em;line-height:1;}
   .st-title{font-size:29px;font-weight:600;margin-top:12px;color:var(--ink);}
   .st-blurb{font-size:16px;line-height:1.7;color:var(--ink-2);margin-top:14px;}
+  .st-link{display:inline-block;margin-top:16px;color:var(--accent);font-size:14px;font-weight:600;
+    text-decoration:none;border-bottom:1px solid transparent;transition:border-color .2s;}
+  .st-link:hover{border-bottom-color:var(--accent);}
   .st-cluster{position:relative;}
   .st-slot{position:absolute;display:flex;align-items:center;justify-content:center;text-align:center;
     border:2px dashed var(--rule);border-radius:12px;color:var(--muted);font-size:13px;letter-spacing:.04em;
@@ -259,11 +277,15 @@
     border-top:2px solid rgba(0,0,0,.22);border-bottom:2px solid rgba(0,0,0,.22);
     box-shadow:0 4px 14px rgba(0,0,0,.25);}
   .ph{position:absolute;display:block;object-fit:cover;object-position:center;transform-origin:0 0;border-radius:8px;
-    pointer-events:none;-webkit-user-drag:none;filter:drop-shadow(0 14px 24px rgba(0,0,0,.26));}
+    cursor:zoom-in;-webkit-user-drag:none;filter:drop-shadow(0 14px 24px rgba(0,0,0,.26));transition:filter .25s var(--ease);}
+  .ph:hover{filter:drop-shadow(0 18px 30px rgba(0,0,0,.34)) brightness(1.03);}
   .ph.cutout{filter:none;border-radius:0;}
+  .ph.cutout:hover{filter:brightness(1.05);}
   .cph{display:block;object-fit:cover;object-position:top center;border-radius:10px;transform-origin:center;
-    pointer-events:none;-webkit-user-drag:none;filter:drop-shadow(0 16px 28px rgba(0,0,0,.26));}
+    cursor:zoom-in;-webkit-user-drag:none;filter:drop-shadow(0 16px 28px rgba(0,0,0,.26));transition:filter .25s var(--ease);}
+  .cph:hover{filter:drop-shadow(0 20px 34px rgba(0,0,0,.34)) brightness(1.03);}
   .cph.cutout{filter:none;}
+  .cph.cutout:hover{filter:brightness(1.05);}
 
   /* case study scenes */
   .cs-block{padding-top:34px;}
@@ -420,39 +442,51 @@
   .tour{position:fixed;left:50%;top:8px;transform:translate(-50%,-18px) scale(.98);z-index:120;width:min(460px,calc(100vw - 40px));
     opacity:0;pointer-events:none;transition:opacity .36s var(--ease),transform .36s var(--ease);}
   .tour.open{opacity:1;pointer-events:auto;transform:translate(-50%,0) scale(1);}
-  .tour-card{position:relative;display:grid;grid-template-columns:38px 1fr auto;gap:8px 12px;align-items:center;
+  .tour-card{position:relative;display:flex;flex-direction:column;gap:12px;
     background:var(--accent);color:var(--on-accent);border:0;
-    border-radius:0 0 18px 18px;padding:10px 12px 12px;box-shadow:0 10px 34px rgba(0,0,0,.22);
+    border-radius:0 0 18px 18px;padding:12px 14px 14px;box-shadow:0 10px 34px rgba(0,0,0,.22);
     backdrop-filter:blur(12px) saturate(150%);}
   [data-theme="dark"] .tour-card{box-shadow:0 22px 70px rgba(0,0,0,.52);}
-  .tour-ava-wrap{position:relative;grid-row:1 / span 2;width:38px;height:38px;align-self:center;}
-  .tour-avatar{width:38px;height:38px;border-radius:10px;object-fit:cover;object-position:50% 28%;background:#d8d3c8;display:block;
+  .tour-top{display:flex;align-items:center;gap:10px;}
+  .tour-ava-wrap{position:relative;width:36px;height:36px;flex:0 0 auto;}
+  .tour-avatar{width:36px;height:36px;border-radius:10px;object-fit:cover;object-position:50% 28%;background:#d8d3c8;display:block;
     box-shadow:0 6px 16px rgba(0,0,0,.2);transform:rotate(-2deg);}
-  .tour-head{display:grid;grid-template-columns:1fr;gap:2px;align-items:center;min-width:0;}
-  .tour-headmeta{min-width:0;padding-top:0;}
-  .tour-exit{width:24px;height:24px;border:0;background:transparent;color:var(--on-accent);opacity:.72;
+  .tour-head{flex:1 1 auto;min-width:0;}
+  .tour-title{font-size:14px;font-weight:700;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .tour-step{font-size:10.5px;font-weight:600;letter-spacing:.03em;opacity:.72;margin-top:2px;font-variant-numeric:tabular-nums;}
+  .tour-speed{flex:0 0 auto;min-width:40px;height:28px;padding:0 9px;border-radius:8px;border:1px solid rgba(255,255,255,.3);
+    background:rgba(255,255,255,.12);color:var(--on-accent);font-family:var(--font-mono);font-size:11.5px;font-weight:700;
+    letter-spacing:.01em;cursor:pointer;transition:background-color .18s var(--ease),transform .16s var(--ease);}
+  .tour-speed:hover{background:rgba(255,255,255,.24);transform:translateY(-1px);}
+  .tour-mute{width:28px;height:28px;border-radius:50%;border:0;background:transparent;color:var(--on-accent);opacity:.82;
+    cursor:pointer;flex:0 0 auto;display:flex;align-items:center;justify-content:center;transition:transform .16s var(--ease),background-color .16s var(--ease),opacity .16s var(--ease);}
+  .tour-mute:hover{opacity:1;transform:scale(1.06);background:rgba(255,255,255,.16);}
+  .tour-exit{width:24px;height:24px;border:0;background:transparent;color:var(--on-accent);opacity:.72;flex:0 0 auto;
     cursor:pointer;font-size:20px;font-family:inherit;line-height:1;transition:opacity .2s var(--ease),transform .2s var(--ease);}
   .tour-exit:hover{opacity:1;transform:scale(1.06);}
-  .tour-title{font-size:14px;font-weight:700;letter-spacing:-.01em;margin-top:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .tour-fly{position:fixed;border-radius:50%;object-fit:cover;object-position:50% 28%;z-index:140;pointer-events:none;
     box-shadow:0 18px 46px rgba(0,0,0,.38);transition:left .36s var(--ease),top .36s var(--ease),width .36s var(--ease),height .36s var(--ease),border-radius .36s var(--ease),transform .36s var(--ease),opacity .18s ease;}
-  .tour-blurb{display:none;}
-  .tour-voice{grid-column:2 / 4;display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;margin-top:0;}
+  .tour-voice{display:flex;align-items:center;gap:10px;}
   .tour-time{font-size:10px;color:rgba(255,255,255,.78);font-variant-numeric:tabular-nums;min-width:34px;text-align:center;}
   .tour-seek{width:100%;height:4px;appearance:none;-webkit-appearance:none;border-radius:999px;background:linear-gradient(90deg,var(--on-accent) 0%,var(--on-accent) var(--p,0%),rgba(255,255,255,.28) var(--p,0%),rgba(255,255,255,.28) 100%);cursor:pointer;}
   .tour-seek::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:12px;height:12px;border-radius:50%;border:0;background:var(--on-accent);box-shadow:0 2px 8px rgba(0,0,0,.22);}
   .tour-seek::-moz-range-thumb{width:12px;height:12px;border-radius:50%;border:0;background:var(--on-accent);box-shadow:0 2px 8px rgba(0,0,0,.22);}
-  .tour-nav{grid-column:2 / 3;display:flex;gap:10px;align-items:center;justify-content:center;}
-  .tour-nav button,.tour-mute{width:30px;height:30px;border-radius:50%;border:0;background:transparent;color:var(--on-accent);
-    cursor:pointer;font-family:inherit;transition:transform .16s var(--ease),background-color .16s var(--ease),opacity .16s var(--ease);display:flex;align-items:center;justify-content:center;}
-  .tour-nav .tour-play{width:36px;height:36px;background:var(--on-accent);color:var(--accent);}
-  .tour-nav button:disabled{opacity:.28;cursor:not-allowed;}
-  .tour-nav button:hover,.tour-mute:hover{transform:scale(1.06);background:rgba(255,255,255,.16);}
-  .tour-nav button:disabled:hover{transform:none;background:transparent;}
-  .tour-nav .tour-play:hover{background:var(--on-accent);}
+  .tour-nav{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;}
+  .tour-adj{display:flex;align-items:center;gap:6px;min-width:0;background:transparent;border:0;color:var(--on-accent);
+    font-family:var(--font-mono);font-size:12px;font-weight:600;opacity:.8;cursor:pointer;padding:6px 8px;border-radius:9px;
+    transition:opacity .16s var(--ease),background-color .16s var(--ease);}
+  .tour-adj:hover:not(:disabled){opacity:1;background:rgba(255,255,255,.12);}
+  .tour-adj:disabled{opacity:.28;cursor:not-allowed;}
+  .tour-prev{justify-content:flex-start;}
+  .tour-next{justify-content:flex-end;text-align:right;}
+  .tour-adj-txt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .tour-adj .tour-icon{width:13px;height:13px;flex:0 0 auto;}
+  .tour-play{justify-self:center;width:42px;height:42px;border-radius:50%;border:0;background:var(--on-accent);color:var(--accent);
+    cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(0,0,0,.22);
+    transition:transform .16s var(--ease);}
+  .tour-play:hover{transform:scale(1.06);}
   .tour-icon{width:16px;height:16px;display:block;fill:currentColor;}
-  .tour-play .tour-icon{width:17px;height:17px;}
-  .tour-mute{grid-column:3 / 4;grid-row:2 / 3;justify-self:end;align-self:center;opacity:.82;}
+  .tour-play .tour-icon{width:18px;height:18px;}
   body.touring .navrail{opacity:0;pointer-events:none;}
   body.touring::before{content:"";position:fixed;inset:7px;z-index:112;pointer-events:none;border:5px solid var(--accent);
     border-radius:22px;box-shadow:0 0 0 1px color-mix(in srgb,var(--accent) 45%,#fff), inset 0 0 0 1px color-mix(in srgb,var(--accent) 35%,transparent),
@@ -460,7 +494,7 @@
   [data-theme="dark"] body.touring::before{box-shadow:0 0 0 1px var(--bg), inset 0 0 0 1px color-mix(in srgb,var(--accent) 50%,transparent),
     0 18px 90px rgba(0,0,0,.45);}
   body.touring #home .vr{opacity:0;transform:translateY(-42px) scale(.7);transition:.35s var(--ease);}
-  @media(max-width:760px){.tour{width:min(430px,calc(100vw - 24px))}.tour-card{grid-template-columns:34px 1fr auto;padding:10px;border-radius:0 0 16px 16px}.tour-ava-wrap,.tour-avatar{width:34px;height:34px;border-radius:9px}.tour-voice{grid-column:1 / -1}.tour-nav{grid-column:2 / 3}}
+  @media(max-width:480px){.tour{width:min(360px,calc(100vw - 24px))}.tour-card{padding:10px 12px 12px}.tour-adj-txt{display:none}.tour-adj{padding:6px}}
   @media (prefers-reduced-motion: reduce){
     *, *::before, *::after{
       animation-duration:.01ms !important;
@@ -611,36 +645,45 @@
     <div class="alb-count"></div>
   </div>
 
+  <div id="shotlb" aria-hidden="true">
+    <button class="shotlb-x" aria-label="Close">&times;</button>
+    <img alt="">
+    <div class="shotlb-cap"></div>
+  </div>
+
   <div class="tour" id="tour">
     <div class="tour-card">
-      <div class="tour-ava-wrap">
-        <img class="tour-avatar" id="tourAva" src="https://app.paper.design/file-assets/01KVRGREPQWV857GHSMNPTJE3H/5HBH9RDB8RFX19K97V9VAJ1HTA.png" alt="">
-      </div>
-      <div class="tour-head">
-        <div class="tour-headmeta">
-          <div class="tour-title" id="tourTitle"></div>
+      <div class="tour-top">
+        <div class="tour-ava-wrap">
+          <img class="tour-avatar" id="tourAva" src="https://app.paper.design/file-assets/01KVRGREPQWV857GHSMNPTJE3H/5HBH9RDB8RFX19K97V9VAJ1HTA.png" alt="">
         </div>
+        <div class="tour-head">
+          <div class="tour-title" id="tourTitle"></div>
+          <div class="tour-step" id="tourStep"></div>
+        </div>
+        <button class="tour-speed" id="tourSpeed" type="button" aria-label="Playback speed">1&times;</button>
+        <button class="tour-mute" id="tourMute" aria-label="Mute">
+          <svg class="tour-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4Zm12.2-1.2a5.9 5.9 0 0 1 0 8.4l1.4 1.4a7.9 7.9 0 0 0 0-11.2l-1.4 1.4Zm-2.1 2.1a2.9 2.9 0 0 1 0 4.2l1.4 1.4a4.9 4.9 0 0 0 0-7l-1.4 1.4Z"/></svg>
+        </button>
+        <button class="tour-exit" id="tourExit" aria-label="Close">&times;</button>
       </div>
-      <button class="tour-exit" id="tourExit" aria-label="Close">&times;</button>
-      <div class="tour-blurb" id="tourBlurb"></div>
-      <div class="tour-nav">
-        <button class="tour-prev" id="tourPrev" aria-label="Previous">
-          <svg class="tour-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h2v14H7V5Zm12 1.2v11.6L10 12l9-5.8Z"/></svg>
-        </button>
-        <button class="tour-play" id="tourPlay" aria-label="Pause">
-          <svg class="tour-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3.5v14H7V5Zm6.5 0H17v14h-3.5V5Z"/></svg>
-        </button>
-        <button class="tour-next" id="tourNext" aria-label="Next">
-          <svg class="tour-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5h2v14h-2V5ZM5 6.2 14 12l-9 5.8V6.2Z"/></svg>
-        </button>
-      </div>
-      <button class="tour-mute" id="tourMute" aria-label="Mute">
-        <svg class="tour-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4Zm12.2-1.2a5.9 5.9 0 0 1 0 8.4l1.4 1.4a7.9 7.9 0 0 0 0-11.2l-1.4 1.4Zm-2.1 2.1a2.9 2.9 0 0 1 0 4.2l1.4 1.4a4.9 4.9 0 0 0 0-7l-1.4 1.4Z"/></svg>
-      </button>
       <div class="tour-voice">
         <span class="tour-time" id="tourElapsed">0:00</span>
         <input class="tour-seek" id="tourSeek" type="range" min="0" max="100" value="0" step="0.1" aria-label="Audio timeline">
         <span class="tour-time" id="tourDuration">0:00</span>
+      </div>
+      <div class="tour-nav">
+        <button class="tour-adj tour-prev" id="tourPrev" aria-label="Previous">
+          <svg class="tour-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h2v14H7V5Zm12 1.2v11.6L10 12l9-5.8Z"/></svg>
+          <span class="tour-adj-txt" id="tourPrevName"></span>
+        </button>
+        <button class="tour-play" id="tourPlay" aria-label="Pause">
+          <svg class="tour-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3.5v14H7V5Zm6.5 0H17v14h-3.5V5Z"/></svg>
+        </button>
+        <button class="tour-adj tour-next" id="tourNext" aria-label="Next">
+          <span class="tour-adj-txt" id="tourNextName"></span>
+          <svg class="tour-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5h2v14h-2V5ZM5 6.2 14 12l-9 5.8V6.2Z"/></svg>
+        </button>
       </div>
     </div>
     <audio id="tourAudio" preload="none"></audio>
@@ -670,14 +713,14 @@
       cover:'4Y4D0ETRHQTHRJCTT8PM53YQ0S.png',
       video:'7cvH_4Nx1nY',
       imgs:['4Y4D0ETRHQTHRJCTT8PM53YQ0S.png','074RTRR0VJ65CAYBKX2K5QNYF0.png'],
-      body:`<p>Our multiplayer turn-based FPS began after I rage-quit XCOM when my guy missed a 95% shot. I knew I could have made that shot &mdash; so we built a game around that idea.</p><p>I handled character art, animation, game design, and visual effects. All the pre-viz concept art and tileable textures were AI-generated, which vastly helped with art direction and color cohesion &mdash; and let me push on other areas like animation.</p><p class="muted">Competition winners Free Lives are now releasing Anger Foot with Devolver Digital.</p>`,
+      body:`<p>Our multiplayer turn-based FPS began after I rage-quit XCOM when my guy missed a 95% shot. I knew I could have made that shot, so we built a game around that idea.</p><p>I handled character art, animation, game design, and visual effects. Everything was built in MagicaVoxel, with animations done frame by frame and effects mixing traditional and digital techniques.</p><p class="muted">Competition winners Free Lives are now releasing Anger Foot with Devolver Digital.</p>`,
       link:'https://mrpossoms.itch.io/gridwars-tactics', linkText:'Play on itch.io &#8599;' },
 
     { id:'jam-unnatural-selection', title:'Unnatural Selection', tag:'7DFPS', meta:'Wave shooter',
       cover:'02EFGA2BKZSJ6PMEY815B2FD4N.png',
       video:'0pAjVd7pcJI',
       imgs:['02EFGA2BKZSJ6PMEY815B2FD4N.png'],
-      body:`<p>Welcome to the human body. You are an immune nanobot tasked with protecting the immune system&rsquo;s lymph nodes from the threat of ever-evolving viruses.</p><p>Right after ChatGPT dropped, we entered this jam to explore AI-driven, reinforcement-learning gameplay that adapts to each player. I handled game design, concept and 3D art, level design, and weapon animation.</p>`,
+      body:`<p>Welcome to the human body. You are an immune nanobot tasked with protecting the immune system&rsquo;s lymph nodes from the threat of ever-evolving viruses.</p><p>A few friends and I built this right after ChatGPT dropped, exploring reinforcement-learning gameplay: enemies learn your behavior and adapt to whatever you use to destroy them. I worked on weapons, animations, and enemies, plus some 3D and texture work.</p>`,
       link:'https://phing1337.itch.io/unnatural-selection', linkText:'Play on itch.io &#8599;' },
 
     { id:'jam-sweet-baby-boy', title:'Sweet Baby Boy', tag:'Ludum Dare 45', meta:'Voxel · custom engine',
@@ -688,14 +731,14 @@
 
     { id:'jam-human-harvest', title:'Human Harvest', tag:'Ludum Dare 50', meta:'Arcade',
       cover:'1ZZRRM04XJGQA7FDM9Q3NMMFBC.png',
-      imgs:['1ZZRRM04XJGQA7FDM9Q3NMMFBC.png','0TCZ4EAKKVVJ4X4FV07N396X41.png'],
-      body:`<p>Time to refuel the ol&rsquo; space ship &mdash; better hoover up some farm critters and their owner. Earth&rsquo;s gravity is weird, though.</p><p>Our dev built a custom level editor that sped up level creation and linked directly to the build pipeline for instant builds.</p><p class="muted">A weekend Ludum Dare experiment. Only screenshots survive.</p>`,
+      imgs:['1ZZRRM04XJGQA7FDM9Q3NMMFBC.png'],
+      body:`<p>Time to refuel the ol&rsquo; space ship, better hoover up some farm critters and their owner. Earth&rsquo;s gravity is weird, though.</p><p>I worked on the textures, frame-by-frame animations, character design, and level and background art. My friend built the custom level editor that powered it, linking right into the build pipeline for instant builds.</p><p class="muted">A weekend Ludum Dare experiment. Only screenshots survive.</p>`,
       link:'' },
 
     { id:'jam-lil-wrangler', title:'Lil Wrangler', tag:'Playdate · Chill Jam', meta:'1-bit handheld',
       cover:'5BRTAG05Y206Y97BHXX1ZPMTA4.png',
       imgs:['5BRTAG05Y206Y97BHXX1ZPMTA4.png'],
-      body:`<p>A Playdate mini-game we built entirely by hand: my friend coded, my brother and I drew the art. AI only helped in pre-production, exploring ideas before we committed.</p><p class="muted">A handheld experiment. Only screenshots survive.</p>`,
+      body:`<p>A Playdate mini-game built entirely by hand. My friend handled all the engineering, and my brother and I did the assets, animations, illustrations, splash art, UI, and helped shape the game design.</p><p class="muted">Started as a game jam project. We&rsquo;re looking to develop it further.</p>`,
       link:'' },
 
     { id:'jam-baja-blast', title:'Baja Blast', tag:'Slop Jam', meta:'3D rally toy',
@@ -777,29 +820,30 @@
       blurb:'I stepped up into platform and ecosystem design \u2014 working across the entire Xbox program. Bigger than any one product: service design for how studios discover Xbox, onboard, build, publish, and ship.',
       emblem:{x:200,y:110,w:320,h:320},
       box:{w:720,h:540}, imgs:[
-        {u:'61R2KSXD9MSD1CKJ0F8RENRWXA.png',w:150,h:165,x:6,y:34,rot:-6,r:10},
-        {u:'6G56QAFV15N8SXGM8P5YTATWJV.png',w:212,h:141,x:498,y:0,rot:5,r:10},
-        {u:'02NWMBVNQ3HGRQNHV0YN7FPS29.png',w:186,h:128,x:18,y:380,rot:4,r:10},
-        {u:'4161NS49D4VWV3KT0358EKRNTE.png',w:200,h:126,x:500,y:388,rot:-5,r:10},
+        {u:'61R2KSXD9MSD1CKJ0F8RENRWXA.png',w:150,h:165,x:6,y:34,rot:-6,r:10,cap:'Before: onboarding was a maze of static sites and email, no clear front door.'},
+        {u:'6G56QAFV15N8SXGM8P5YTATWJV.png',w:212,h:141,x:498,y:0,rot:5,r:10,cap:'After: a guided entry point that tracks progress and shows the next step.'},
+        {u:'02NWMBVNQ3HGRQNHV0YN7FPS29.png',w:186,h:128,x:18,y:380,rot:4,r:10,cap:'After: the redesigned onboarding portal, in progress.'},
+        {u:'4161NS49D4VWV3KT0358EKRNTE.png',w:200,h:126,x:500,y:388,rot:-5,r:10,cap:'Before: scattered pages with no way to track where you stood.'},
       ]},
-    { year:'2023', title:'Game publishing', caseKey:'publishing', gapBefore:520,
+    { year:'2023', title:'Game publishing', caseKey:'publishing', gapBefore:500,
       blurb:'Then I took on publishing: the path from a finished build to a live product on Xbox. Store pages, pricing, packages, testing, and certification.',
-      box:{w:760,h:470}, imgs:[
-        {u:'1931QWC1BM7F162M37FSYRSWWT.png',w:560,h:339,x:0,y:24,rot:-2,r:10,b:1},
-        {u:'3EDFAF30HFX32ZC4RWK6N1F46D.png',w:380,h:272,x:392,y:198,rot:3,r:10,b:1},
+      box:{w:760,h:500}, imgs:[
+        {u:'1931QWC1BM7F162M37FSYRSWWT.png',w:420,h:254,x:0,y:24,rot:-2,r:10,cap:'Partner Center: the previous generation\u2019s publishing portal. Powerful, but aging.'},
+        {u:'3EDFAF30HFX32ZC4RWK6N1F46D.png',w:480,h:344,x:280,y:150,rot:3,r:10,b:1,cap:'The redesigned publishing portal: one guided experience from upload to launch.'},
       ]},
-    { year:'2024', title:'Developer experiences', gapBefore:500,
-      blurb:'I spent the year deep in developer portal work, mostly the technical minutia that makes large systems usable: org structures, roles, permissions, productization models, and the partner UIs people rely on to manage complex platform tasks. Much of the work is still confidential, but the theme was clear: make the machinery understandable enough for people to operate it.',
-      box:{w:680,h:430}, imgs:[], secrets:[
-        {label:'Roles', x:12, y:26, w:300, h:180, rot:-3},
-        {label:'Permissions', x:250, y:122, w:350, h:206, rot:3},
-        {label:'Productization', x:52, y:250, w:330, h:156, rot:-1},
+    { year:'2024', title:'Next-gen developer experiences', gapBefore:500,
+      blurb:'I spent the year building developer tooling for next-generation hardware: game testing pipelines, package management, and the infrastructure studios need to ship on it. Most of it is still confidential, but it&rsquo;s laying the groundwork for what&rsquo;s coming next on Xbox.',
+      box:{w:680,h:440}, imgs:[], secrets:[
+        {label:'Game Testing', x:0, y:14, w:290, h:170, rot:-3},
+        {label:'Package Management', x:350, y:36, w:330, h:194, rot:3},
+        {label:'Next-Gen Tooling', x:130, y:270, w:320, h:150, rot:-2},
       ]},
-    { year:'2025', title:'Xbox Mode',
+    { year:'2025', title:'Xbox Mode', gapBefore:500,
       blurb:'Xbox Mode brings a full-screen, console-like experience to Windows, GA in April and rolling out to billions of players. It boosts performance for focused gameplay, and I designed the system-level interactions: mouse mode for controllers, overlay management, and app switching for multitasking.',
-      box:{w:740,h:430}, imgs:[], slots:[
-        {w:430,h:262,x:0,y:18,rot:-3},
-        {w:350,h:232,x:320,y:158,rot:4},
+      link:'https://news.xbox.com/en-us/2026/04/30/xbox-mode-pc-windows-11/', linkText:'Read the announcement',
+      box:{w:740,h:440}, imgs:[
+        {u:'assets/timeline%20assets/Windows-11-Xbox-Mode.webp',w:700,h:394,x:20,y:18,rot:0,r:12,
+          cap:'Xbox Mode running across the devices it shipped to: handhelds, laptops, and desktops.'},
       ]},
     { year:'2026', title:'Helix and secret things', gapBefore:500,
       blurb:'I&rsquo;m working on the recently announced Xbox Helix console, and that is about all I can share. There are a few other unannounced things in flight too, so for now they stay under NDA tape.',
@@ -817,11 +861,13 @@
   stations.forEach(s => {
     const el = document.createElement('div');
     el.className = 'station' + (s.caseKey ? ' caseorigin' : ''); el.style.left = s._x + 'px';
-    const imgs = s.imgs.map(im =>
-      `<img class="ph" data-u="${im.u}" src="${A}${im.u}" style="left:${im.x}px;top:${im.y}px;width:${im.w}px;height:${im.h}px;`+
+    const srcFor = u => u.includes('/') ? u : `${A}${u}`;
+    const imgs = s.imgs.map(im => {
+      const cap = (im.cap || `${s.year ? s.year+' · ' : ''}${s.title}`).replace(/"/g,'&quot;');
+      return `<img class="ph" data-u="${im.u}" data-cap="${cap}" src="${srcFor(im.u)}" style="left:${im.x}px;top:${im.y}px;width:${im.w}px;height:${im.h}px;`+
       `transform:rotate(${im.rot||0}deg);border-radius:${im.r||8}px;`+
-      `${im.b?`outline:${im.b}px solid #000;`:''}">`
-    ).join('');
+      `${im.b?`outline:${im.b}px solid #000;`:''}">`;
+    }).join('');
     const emblem = s.emblem
       ? `<div class="xbox-emblem" style="left:${s.emblem.x}px;top:${s.emblem.y}px;width:${s.emblem.w}px;height:${s.emblem.h}px;">`+
         `<img class="xlogo xlogo-light" src="assets/timeline%20assets/XBOX_logo_Sphere_4C_forLight_RGB_2026-05-20.png" alt="Xbox">`+
@@ -839,7 +885,8 @@
     el.innerHTML =
       `<div class="st-node"></div>`+
       `<div class="st-text">${s.year?`<div class="st-year">${s.year}</div>`:''}`+
-      `<div class="st-title">${s.title}</div><div class="st-blurb">${s.blurb}</div></div>`+
+      `<div class="st-title">${s.title}</div><div class="st-blurb">${s.blurb}</div>`+
+      `${s.link?`<a class="st-link" href="${s.link}" target="_blank" rel="noopener">${s.linkText||'Read more'} &#8599;</a>`:''}</div>`+
       `<div class="st-cluster" style="width:${s.box.w}px;height:${s.box.h}px;">${emblem}${imgs}${slots}${secrets}</div>`;
     tl.appendChild(el);
   });
@@ -864,17 +911,17 @@
            <div class="cs-sub-lg" style="margin-top:26px;max-width:430px;">A maze of static sites and unstructured email &mdash; no front door, and no way to track where you stood.</div>
          </div>
          <div style="display:flex;align-items:center;flex:0 0 auto;">
-           <img class="cph" src="${A}61R2KSXD9MSD1CKJ0F8RENRWXA.png" style="width:330px;height:360px;transform:rotate(-4deg);filter:grayscale(.2) drop-shadow(0 16px 28px rgba(0,0,0,.26));">
-           <img class="cph" src="${A}4161NS49D4VWV3KT0358EKRNTE.png" style="width:360px;height:225px;margin-left:-45px;transform:rotate(3deg);filter:grayscale(.2) drop-shadow(0 16px 28px rgba(0,0,0,.26));">
-           <img class="cph" src="${A}4SMKKYMNFG2EVB2Q5ZGA6YHASE.png" style="width:240px;height:255px;margin-left:-45px;transform:rotate(5.63deg);filter:grayscale(.3) drop-shadow(0 16px 28px rgba(0,0,0,.26));">
+           <img class="cph" src="${A}61R2KSXD9MSD1CKJ0F8RENRWXA.png" data-cap="Old onboarding: a maze of static sites and unstructured email." style="width:330px;height:360px;transform:rotate(-4deg);filter:grayscale(.2) drop-shadow(0 16px 28px rgba(0,0,0,.26));">
+           <img class="cph" src="${A}4161NS49D4VWV3KT0358EKRNTE.png" data-cap="Old onboarding: no front door, and no way to track where you stood." style="width:360px;height:225px;margin-left:-45px;transform:rotate(3deg);filter:grayscale(.2) drop-shadow(0 16px 28px rgba(0,0,0,.26));">
+           <img class="cph" src="${A}4SMKKYMNFG2EVB2Q5ZGA6YHASE.png" data-cap="Old onboarding: another disconnected page developers had to find on their own." style="width:240px;height:255px;margin-left:-45px;transform:rotate(5.63deg);filter:grayscale(.3) drop-shadow(0 16px 28px rgba(0,0,0,.26));">
          </div>
        </div>` },
     { html:
       `<div class="cs-block">
          <div class="cs-h-xl" style="max-width:1040px;">A guided entry point that tracks progress and moves you through onboarding.</div>
          <div style="display:flex;align-items:flex-start;gap:32px;margin-top:48px;">
-           <img class="cph" src="${A}6G56QAFV15N8SXGM8P5YTATWJV.png" style="width:700px;height:466px;transform:rotate(-1.5deg);border-radius:12px;">
-           <img class="cph" src="${A}02NWMBVNQ3HGRQNHV0YN7FPS29.png" style="width:560px;height:384px;transform:rotate(2deg);border-radius:12px;">
+           <img class="cph" src="${A}6G56QAFV15N8SXGM8P5YTATWJV.png" data-cap="The new onboarding portal: a guided entry point that tracks your progress." style="width:700px;height:466px;transform:rotate(-1.5deg);border-radius:12px;">
+           <img class="cph" src="${A}02NWMBVNQ3HGRQNHV0YN7FPS29.png" data-cap="The new onboarding portal, showing the next step at every stage." style="width:560px;height:384px;transform:rotate(2deg);border-radius:12px;">
          </div>
          <div class="cs-sub-lg" style="margin-top:40px;max-width:900px;">It greets each developer, shows where they are, points to the next step, and keeps them moving until onboarding is done.</div>
        </div>` },
@@ -935,7 +982,7 @@
            </ul>
          </div>
          <div style="flex:0 0 auto;">
-           <img class="cph" src="${A}1931QWC1BM7F162M37FSYRSWWT.png" style="width:460px;height:278px;transform:rotate(-1.5deg);border-radius:0;filter:none;">
+           <img class="cph" src="${A}1931QWC1BM7F162M37FSYRSWWT.png" data-cap="Partner Center, the previous generation&#39;s publishing portal. Powerful, but aging." style="width:460px;height:278px;transform:rotate(-1.5deg);border-radius:0;filter:none;">
          </div>
        </div>` },
     { html:
@@ -943,8 +990,8 @@
          <div class="cs-h-xl" style="max-width:1100px;">Untangling the knots of Partner Center.</div>
          <div class="cs-sub-lg" style="margin-top:26px;max-width:1040px;">Overhauling Partner Center meant patient mapping and careful dissection. Publishing is both vast and deep, from build pipelines to global pricing. We charted every page and touchpoint, then traced the flows that tied them together.</div>
          <div style="display:flex;align-items:flex-start;gap:30px;margin-top:46px;">
-           <img class="cph" src="${A}5T0XMEVBQB5JRV4ZV0MQKA7129.png" style="width:430px;height:486px;transform:rotate(-3deg);border-radius:10px;">
-           <img class="cph" src="${A}7QSSJVR4TTG5C6Z9PXPG5V4P9G.png" style="width:330px;height:507px;transform:rotate(2.5deg);border-radius:10px;">
+           <img class="cph" src="${A}5T0XMEVBQB5JRV4ZV0MQKA7129.png" data-cap="Mapping every page and touchpoint in the existing publishing flow." style="width:430px;height:486px;transform:rotate(-3deg);border-radius:10px;">
+           <img class="cph" src="${A}7QSSJVR4TTG5C6Z9PXPG5V4P9G.png" data-cap="Tracing the flows that tied Partner Center&#39;s pages together." style="width:330px;height:507px;transform:rotate(2.5deg);border-radius:10px;">
          </div>
          <div class="cs-sub-md" style="margin-top:30px;max-width:840px;"><b style="color:var(--ink)">Audits &amp; analysis.</b> Heuristic reviews, usage data, and interviews revealed core workflows, extra steps, and unclear guidance, pinpointing creator pain points.</div>
        </div>` },
@@ -952,8 +999,12 @@
       `<div class="cs-block">
          <div class="cs-h-xl" style="max-width:1000px;">A portal creators could actually finish.</div>
          <div class="cs-sub-lg" style="margin-top:26px;max-width:1040px;">The final direction brought publishing into one guided experience. We kept the depth large studios needed, but made the path clearer for everyone else: what to do next, what was missing, and how close a game was to launch.</div>
-         <img class="cph" src="${A}3EDFAF30HFX32ZC4RWK6N1F46D.png" style="width:1120px;height:803px;margin-top:46px;transform:rotate(-1deg);border-radius:14px;">
+         <img class="cph" src="${A}3EDFAF30HFX32ZC4RWK6N1F46D.png" data-cap="The redesigned publishing portal: one guided experience from upload to launch." style="width:1120px;height:803px;margin-top:46px;transform:rotate(-1deg);border-radius:14px;">
          <div class="cs-sub-md" style="margin-top:34px;max-width:900px;"><b style="color:var(--ink)">Self-service, end to end.</b> Products, packages, testing, certification, and launch status in one place, with the next step always visible.</div>
+         <div style="display:flex;align-items:flex-start;gap:28px;margin-top:40px;">
+           <img class="cph" src="assets/timeline%20assets/Project-Setup-Dialog.png" data-cap="Starting a new project: name it, reserve a store listing name, and you&#39;re in." style="width:460px;height:295px;transform:rotate(-2deg);border-radius:12px;">
+           <img class="cph" src="assets/timeline%20assets/Store-Media-Upload-Flow.png" data-cap="The store media step: upload art and the gallery expands to show it all." style="width:560px;height:330px;transform:rotate(1.5deg);border-radius:12px;">
+         </div>
        </div>` },
     { html:
       `<div class="cs-block">
@@ -1044,8 +1095,6 @@
   // "next" buttons fly the canvas to another case column
   document.querySelectorAll('[data-fly]').forEach(el =>
     el.addEventListener('click', () => { if(dragMoved) return; const f = flyTargets[el.dataset.fly]; if(f) tweenToPoint(f.x, f.y, f.z); }));
-
-  const caseColX = xboxX;
 
   // strip the shadow from transparent (alpha) PNGs so cutouts just float
   function markCutouts(){
@@ -1256,7 +1305,8 @@
 
   vp.addEventListener('pointerdown', e => {
     if(e.pointerType==='mouse' && e.button!==0) return;
-    if(modalOpen || artLbOpen) return;
+    if(modalOpen || artLbOpen || shotLbOpen) return;
+    pauseTourForInterruption();
     stopInertia(); cancelTween();
     pts.set(e.pointerId, {x:e.clientX, y:e.clientY});
     if(pts.size === 1){
@@ -1377,9 +1427,39 @@
   artlb.querySelector('.alb-prev').addEventListener('click', e => { e.stopPropagation(); showArt(artLbIdx-1); });
   artlb.querySelector('.alb-next').addEventListener('click', e => { e.stopPropagation(); showArt(artLbIdx+1); });
 
+  /* ---------- timeline / case-study screenshot lightbox ---------- */
+  const shotlb = document.getElementById('shotlb');
+  const shotlbImg = shotlb.querySelector('img');
+  const shotlbCap = shotlb.querySelector('.shotlb-cap');
+  let shotLbOpen = false;
+  function openShot(src, cap){
+    shotlbImg.src = src;
+    shotlbCap.textContent = cap || '';
+    shotlbCap.style.display = cap ? '' : 'none';
+    shotlb.classList.add('open');
+    shotlb.setAttribute('aria-hidden','false');
+    shotLbOpen = true;
+  }
+  function closeShot(){
+    shotlb.classList.remove('open');
+    shotlb.setAttribute('aria-hidden','true');
+    shotLbOpen = false;
+    shotlbImg.removeAttribute('src');
+    shotlbCap.textContent = '';
+  }
+  shotlb.addEventListener('click', e => { if(e.target === shotlb) closeShot(); });
+  shotlb.querySelector('.shotlb-x').addEventListener('click', e => { e.stopPropagation(); closeShot(); });
+  tl.addEventListener('click', e => {
+    if(dragMoved) return;
+    const img = e.target.closest('img.ph, img.cph');
+    if(!img || !img.getAttribute('src')) return;
+    e.stopPropagation();
+    openShot(img.src, img.dataset.cap || '');
+  });
+
   vp.addEventListener('wheel', e => {
-    if(modalOpen || artLbOpen) return;
-    e.preventDefault(); stopInertia(); cancelTween();
+    if(modalOpen || artLbOpen || shotLbOpen) return;
+    e.preventDefault(); pauseTourForInterruption(); stopInertia(); cancelTween();
     zoomAt(e.clientX, e.clientY, zoom * Math.exp(-e.deltaY * 0.0015));
   }, {passive:false});
 
@@ -1414,7 +1494,7 @@
   }
   const NAV_IGNORE = 'button, a, input, textarea, select, [data-modal], [data-fly], [data-go], [data-close], .artimg, #parentBubble, .bub, .tour-btn, .hinttoast';
   vp.addEventListener('click', e => {
-    if(modalOpen || artLbOpen) return;
+    if(modalOpen || artLbOpen || shotLbOpen) return;
     if(dragMoved) return;                      // it was a pan, not a click
     if(e.target.closest(NAV_IGNORE)) return;   // let real controls do their job
     dismissHint();
@@ -1451,6 +1531,7 @@
       else if(e.key==='ArrowRight') showArt(artLbIdx+1);
       return;
     }
+    if(shotLbOpen){ if(e.key==='Escape') closeShot(); return; }
     if(modalOpen){ if(e.key==='Escape') closeModal(); return; }
     if(e.key==='Escape' || e.key==='Home'){ focus('home'); }
     else if(e.key==='ArrowLeft'){ focus('west'); }
@@ -1464,15 +1545,12 @@
 
   /* ---------- guided tour ---------- */
   const TOUR = [
-    {title:"Intro", blurb:"Hi, I’m Nick. Welcome to the canvas.", x:0, y:0, z:1, audio:"assets/audio tour/intro.m4a", duration:95},
-    {title:"Timeline", blurb:"To the right is the timeline.", x:(LEADIN + lastX) / 2, y:260, z:0.18, audio:"assets/audio tour/timeline.m4a", duration:125, motion:"timeline-pan"},
-    {title:"Xbox onboarding", blurb:"A healthy gaming ecosystem needs developers.", x:caseColX+420, y:1600, z:0.55, audio:"", duration:34},
-    {title:"Game publishing", blurb:"An overview of publishing portals and getting games ready to sell.", x:flyTargets.publishing.x, y:flyTargets.publishing.y, z:flyTargets.publishing.z, audio:"", duration:38},
-    {title:"Developer work", blurb:"Developer portals, roles, permissions, Xbox Mode, Helix, and NDA tape.", x:9556, y:320, z:0.44, audio:"", duration:42},
-    {title:"Things I think about", blurb:"The more personal side: ideas, writing, and what I care about.", x:0, y:1000, z:0.8, audio:"", duration:32},
-    {title:"Art and sketches", blurb:"Drawing, painting, 3D, animation, and trying a bit of everything.", x:-2440, y:0, z:0.42, audio:"", duration:34},
-    {title:"Fun projects", blurb:"Game jams and experiments with friends.", x:0, y:NORTHY, z:0.6, audio:"", duration:28},
-    {title:"Close", blurb:"Back to center.", x:0, y:0, z:1, audio:"", duration:18},
+    {title:"Intro", blurb:"Hi, I’m Nick. Welcome to the canvas.", x:0, y:0, z:1, audio:"assets/audio tour/intro short.m4a", duration:95},
+    {title:"Timeline", blurb:"To the right is the timeline.", x:(LEADIN + lastX) / 2, y:260, z:0.18, audio:"assets/audio tour/Timeline short.m4a", duration:125, motion:"timeline-pan"},
+    {title:"Things I think about", blurb:"The more personal side: ideas, writing, and what I care about.", x:0, y:1000, z:0.8, audio:"assets/audio tour/about me.m4a", duration:32},
+    {title:"Art and sketches", blurb:"Drawing, painting, 3D, animation, and trying a bit of everything.", x:-2440, y:0, z:0.42, audio:"assets/audio tour/art.m4a", duration:34},
+    {title:"Fun projects", blurb:"Game jams and experiments with friends.", x:0, y:NORTHY, z:0.6, audio:"assets/audio tour/game jam.m4a", duration:28},
+    {title:"Close", blurb:"Back to center.", x:0, y:0, z:1, audio:"assets/audio tour/outro.m4a", duration:18},
   ];
   const tourEl = document.getElementById('tour');
   const tourCard = tourEl.querySelector('.tour-card');
@@ -1480,6 +1558,7 @@
   const tEl = id => document.getElementById(id);
   let tourIdx = 0;
   let tourSpeaking = false;
+  const TOUR_RATES = [1, 1.25, 1.5, 1.8, 2];
   let tourRate = 1;
   let tourVirtualDuration = 0;
   let tourVirtualRemaining = 0;
@@ -1560,7 +1639,6 @@
     const seek = tEl('tourSeek');
     seek.value = pct;
     seek.style.setProperty('--p', pct + '%');
-    if(activeTourMotion() && !tourSpeaking) applyTimelinePan();
   }
   function stopVirtualTimer(){
     if(tourVirtualTimer) clearInterval(tourVirtualTimer);
@@ -1572,7 +1650,7 @@
       if(!tourSpeaking || tourAudio.getAttribute('src')) return;
       tourVirtualRemaining = Math.max(0, tourVirtualRemaining - tourRate);
       updateTourTime();
-      if(tourVirtualRemaining <= 0) setPlay(false);
+      if(tourVirtualRemaining <= 0) advanceOrEnd();
     }, 1000);
   }
   function setPlay(p){
@@ -1582,10 +1660,24 @@
     if(p) startTourMotion();
     else stopTourMotion();
   }
+  // Manual drag/zoom/click on the canvas takes priority over the guided tour's
+  // auto-pan: pause playback instead of fighting the user's input every frame.
+  function pauseTourForInterruption(){
+    if(!tourSpeaking) return;
+    try{ tourAudio.pause(); }catch(e){}
+    setPlay(false);
+  }
   function updateMute(){
     const muted = tourAudio.muted || tourAudio.volume === 0;
     tEl('tourMute').innerHTML = muted ? tourIcons.muted : tourIcons.volume;
     tEl('tourMute').setAttribute('aria-label', muted ? 'Unmute' : 'Mute');
+  }
+  function fmtRate(r){ return (Number.isInteger(r) ? r.toFixed(0) : String(r)) + '\u00d7'; }
+  function setTourRate(r){
+    tourRate = r;
+    tourAudio.playbackRate = r;
+    tEl('tourSpeed').textContent = fmtRate(r);
+    tEl('tourSpeed').setAttribute('aria-label', `Playback speed: ${fmtRate(r)}`);
   }
   function launchGuideFace(){
     const src = document.querySelector('#home .vr');
@@ -1619,9 +1711,15 @@
     stopTourMotion();
     tourIdx = (i + TOUR.length) % TOUR.length;
     const s = TOUR[tourIdx];
+    const isLast = tourIdx === TOUR.length - 1;
     tEl('tourTitle').textContent = s.title;
-    tEl('tourBlurb').textContent = s.blurb;
-    tEl('tourNext').setAttribute('aria-label', tourIdx === TOUR.length-1 ? 'Finish tour' : 'Next');
+    tEl('tourStep').textContent = `Stop ${tourIdx+1} of ${TOUR.length}`;
+    const prevS = TOUR[tourIdx - 1];
+    const nextS = TOUR[tourIdx + 1];
+    tEl('tourPrevName').textContent = prevS ? prevS.title : '';
+    tEl('tourNextName').textContent = isLast ? 'Finish' : nextS.title;
+    tEl('tourPrev').setAttribute('aria-label', prevS ? `Previous: ${prevS.title}` : 'Previous');
+    tEl('tourNext').setAttribute('aria-label', isLast ? 'Finish tour' : `Next: ${nextS.title}`);
     tEl('tourPrev').disabled = tourIdx === 0;
     const target = tourCameraTarget(s);
     if(target.instant){ cancelTween(); stopInertia(); setCameraToPoint(target.x, target.y, target.z); }
@@ -1647,8 +1745,13 @@
   function startTour(){
     tourEl.classList.add('open');
     document.body.classList.add('touring');
+    setTourRate(tourRate);
     showStop(0);
     setTimeout(launchGuideFace, 80);
+  }
+  function advanceOrEnd(){
+    if(tourIdx === TOUR.length - 1) endTour();
+    else showStop(tourIdx + 1);
   }
   function endTour(){
     tourEl.classList.remove('open');
@@ -1666,6 +1769,10 @@
   tEl('tourMute').addEventListener('click', () => {
     tourAudio.muted = !tourAudio.muted;
     updateMute();
+  });
+  tEl('tourSpeed').addEventListener('click', () => {
+    const i = TOUR_RATES.indexOf(tourRate);
+    setTourRate(TOUR_RATES[(i + 1) % TOUR_RATES.length]);
   });
   tEl('tourPlay').addEventListener('click', () => {
     if(tourSpeaking){
@@ -1691,7 +1798,7 @@
   tourAudio.addEventListener('timeupdate', updateTourTime);
   tourAudio.addEventListener('loadedmetadata', updateTourTime);
   tourAudio.addEventListener('volumechange', updateMute);
-  tourAudio.addEventListener('ended', () => setPlay(false));
+  tourAudio.addEventListener('ended', advanceOrEnd);
 
   addEventListener('resize', apply);
   apply();
