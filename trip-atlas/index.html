@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f6f3eb" />
+    <meta name="description" content="A personal travel atlas from Seattle to the Aegean, May 2027." />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>A Little Farther — Greece & Turkey 2027</title>
+    <script type="module" crossorigin src="./assets/index-BDabPPm6.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-BTbZst9E.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#destination">Skip to destination guide</a>
+    <header class="masthead">
+      <a class="brand" href="#" aria-label="A Little Farther, whole journey"><span class="brand-mark">a<span>↗</span></span><span>a little farther<span class="brand-sub">NICK'S TRAVEL ATLAS</span></span></a>
+      <div class="trip-title">Seattle <span>→</span> the Aegean <span>→</span> home</div>
+      <div class="edition"><button id="notebook-button" class="text-button">Planning notebook ↗</button><span class="status-dot"></span> MAY 01—15, 2027 <span class="edition-tag">VOL. 01</span></div>
+    </header>
+    <div class="workspace">
+      <aside class="itinerary" aria-label="Trip itinerary">
+        <div class="sidebar-heading"><div><p class="eyebrow">THE LONG WAY TO A GOOD TIME</p><h1>Your two weeks,<br /><em>unfolded.</em></h1></div><span class="compass">✳</span></div>
+        <div class="sidebar-summary"><span id="trip-day-count">15 days</span><span>2 countries to explore</span><span>1 sea</span></div>
+        <div class="itinerary-tools"><span class="eyebrow">THE ITINERARY</span><button id="expand-all" class="text-button" aria-expanded="false">Expand all +</button></div>
+        <nav id="days" aria-label="Select a day"></nav>
+        <div class="sidebar-foot"><span class="tiny-plane">↗</span><p>A plan, not a race.<br /><strong>Leave a little room for getting lost.</strong></p></div>
+      </aside>
+      <main>
+        <section class="map-section" aria-label="Interactive 3D trip map">
+          <div id="globe" role="img" aria-label="Interactive Earth showing flights and the Mediterranean cruise. Drag to rotate, scroll to zoom."></div>
+          <div class="map-heading"><span class="eyebrow">A WINDOW SEAT ON THE WORLD</span><h2 id="map-title">From here to somewhere.</h2><p id="map-subtitle">Seattle · Chicago · Athens</p></div>
+          <div class="map-tools" aria-label="Map views">
+            <button id="world-view" class="map-button active" aria-pressed="true">◎ Whole journey</button>
+            <button id="cruise-view" class="map-button" aria-pressed="false">≋ The Aegean</button>
+            <button id="follow-view" class="map-button" aria-pressed="false">⌖ Follow day</button>
+          </div>
+          <div id="map-loading" class="map-loading" role="status">Unfolding the world…</div>
+          <div id="map-error" class="map-error" role="alert" hidden><strong>The 3D map couldn't load.</strong><p id="map-error-detail"></p><button id="retry-map">Retry map</button><span>Your itinerary and guides still work below.</span></div>
+          <div class="map-caption"><span class="legend"><i class="flight-line"></i> Flight <i class="sea-line"></i> Cruise</span><span>Illustrative routes · not live tracking</span></div>
+          <div class="timeline">
+            <div class="timeline-top"><button id="play" class="play-button" aria-label="Play journey">▶</button><div class="timeline-label"><span class="eyebrow" id="timeline-day">DAY 01 / 15</span><strong id="timeline-place">The journey begins</strong></div><span id="timeline-date" class="timeline-date">SAT, MAY 01</span><button id="previous" class="step-button" aria-label="Previous day">←</button><button id="next" class="step-button" aria-label="Next day">→</button></div>
+            <input id="day-scrubber" type="range" min="0" max="14" value="0" step="1" aria-label="Trip day" aria-valuetext="Day 1, May 1: The journey begins" />
+            <div class="timeline-endpoints"><span>01 MAY · SEATTLE</span><span>DRAG TO EXPLORE YOUR TRIP</span><span>15 MAY · HOME</span></div>
+          </div>
+        </section>
+        <section id="destination" class="destination" aria-labelledby="destination-title">
+          <div class="destination-bar"><div><span class="eyebrow" id="destination-kicker"></span><h2 id="destination-title"></h2></div><span id="destination-badge" class="pill"></span></div>
+          <div class="tabs" role="tablist" aria-label="Destination guide"><button role="tab" id="tab-notes" aria-controls="guide-panel" aria-selected="true" tabindex="0" data-tab="notes">Postcards & field notes</button><button role="tab" id="tab-day" aria-controls="guide-panel" aria-selected="false" tabindex="-1" data-tab="day">Your day, loosely planned</button><button role="tab" id="tab-practical" aria-controls="guide-panel" aria-selected="false" tabindex="-1" data-tab="practical">The useful little things</button></div>
+          <div id="guide-panel" role="tabpanel" aria-labelledby="tab-notes"></div>
+        </section>
+        <footer class="footer"><span>Made for the memories, not just the miles.</span><button id="sources-button" class="text-button">Sources & what isn't confirmed ↗</button></footer>
+      </main>
+    </div>
+    <dialog id="sources-dialog" aria-labelledby="sources-title"><div class="dialog-heading"><h2 id="sources-title">The fine print, kindly.</h2><button id="close-sources" aria-label="Close sources">×</button></div><div id="sources-content"></div></dialog>
+  </body>
+</html>
