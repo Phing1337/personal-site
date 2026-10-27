@@ -7,8 +7,8 @@
     <meta name="description" content="A personal travel atlas from Seattle to the Aegean, May 2027." />
     <meta name="robots" content="noindex, nofollow" />
     <title>A Little Farther — Greece & Turkey 2027</title>
-    <script type="module" crossorigin src="./assets/index-ADBmxqfh.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-CoNY7bkf.css">
+    <script type="module" crossorigin src="./assets/index-BeGL74ig.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-D4U_0LfI.css">
   </head>
   <body>
     <a class="skip-link" href="#destination">Skip to destination guide</a>
@@ -19,9 +19,20 @@
     </header>
     <div class="workspace">
       <aside class="itinerary" aria-label="Trip itinerary">
-        <div class="sidebar-heading"><div><p class="eyebrow">MAY 2027 · <span id="trip-day-count">15 days</span></p><h1>Greece &amp; Turkey</h1></div></div>
-        <div class="itinerary-tools"><span class="eyebrow">THE ITINERARY</span><button id="expand-all" class="text-button" aria-expanded="false">Expand all +</button></div>
-        <nav id="days" aria-label="Select a day"></nav>
+        <div class="sidebar-heading"><div class="sidebar-heading-copy"><p class="eyebrow">MAY 2027 · <span id="trip-day-count">15 days</span></p><h1>Greece &amp; Turkey</h1></div><button id="toggle-timeline" class="timeline-toggle" aria-expanded="true" aria-controls="timeline-body" aria-label="Collapse timeline"><span aria-hidden="true">‹</span></button></div>
+        <div id="timeline-body">
+          <div class="timeline" aria-label="Journey playback and day scrubber">
+            <div class="timeline-selection"><span class="eyebrow" id="timeline-day">DAY 01 / 15</span><span id="timeline-date" class="timeline-date">SAT, MAY 01</span></div>
+            <strong id="timeline-place">The journey begins</strong>
+            <div class="timeline-top"><button id="previous" class="step-button" aria-label="Previous day">←</button><button id="play" class="play-button" aria-label="Play journey">▶</button><button id="next" class="step-button" aria-label="Next day">→</button><span class="scrub-hint">Drag to move through the days</span></div>
+            <input id="day-scrubber" type="range" min="0" max="14" value="0" step="1" aria-label="Trip day" aria-valuetext="Day 1, May 1: The journey begins" />
+            <div id="timeline-ticks" aria-label="Jump to a numbered day"></div>
+          </div>
+          <div class="itinerary-tools"><span class="eyebrow">STEP BY STEP</span><button id="expand-all" class="text-button" aria-expanded="false">Expand all +</button></div>
+          <nav id="days" aria-label="Select a day"></nav>
+        </div>
+        <nav id="compact-days" aria-label="Compact numbered timeline" hidden></nav>
+        <p id="timeline-announcement" class="visually-hidden" role="status"></p>
       </aside>
       <main>
         <section class="map-section" aria-label="Interactive journey and street maps" data-map-view="globe">
@@ -35,10 +46,6 @@
           <div id="map-places" class="map-places" aria-label="Suggested sights to explore" hidden></div>
           <div id="map-loading" class="map-loading" role="status">Unfolding the world…</div>
           <div id="map-error" class="map-error" role="alert" hidden><strong>Map detail is unavailable.</strong><p id="map-error-detail"></p><button id="retry-map">Retry map</button><span>Your itinerary and guides still work below.</span></div>
-          <div class="timeline">
-            <div class="timeline-top"><button id="play" class="play-button" aria-label="Play journey">▶</button><div class="timeline-label"><span class="eyebrow" id="timeline-day">DAY 01 / 15</span><strong id="timeline-place">The journey begins</strong></div><span id="timeline-date" class="timeline-date">SAT, MAY 01</span><button id="previous" class="step-button" aria-label="Previous day">←</button><button id="next" class="step-button" aria-label="Next day">→</button></div>
-            <input id="day-scrubber" type="range" min="0" max="14" value="0" step="1" aria-label="Trip day" aria-valuetext="Day 1, May 1: The journey begins" />
-          </div>
         </section>
         <section id="destination" class="destination" aria-labelledby="destination-title">
           <div class="destination-bar"><div><span class="eyebrow" id="destination-kicker"></span><h2 id="destination-title"></h2></div><span id="destination-badge" class="pill"></span></div>
